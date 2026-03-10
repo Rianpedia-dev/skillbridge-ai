@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import imageCompression from "browser-image-compression";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -126,8 +127,27 @@ export default function ServicesPage() {
 
             // Upload image if a new one is selected
             if (imageFile) {
+                let fileToUpload = imageFile;
+
+                // Compress if larger than 5MB
+                if (imageFile.size > 5 * 1024 * 1024) {
+                    try {
+                        const options = {
+                            maxSizeMB: 2.5,
+                            maxWidthOrHeight: 1920,
+                            useWebWorker: true,
+                        };
+                        fileToUpload = await imageCompression(imageFile, options);
+                    } catch (error) {
+                        console.error("Compression error:", error);
+                        alert("Gagal mengkompresi gambar.");
+                        setIsSubmitting(false);
+                        return;
+                    }
+                }
+
                 const formData = new FormData();
-                formData.append("file", imageFile);
+                formData.append("file", fileToUpload);
 
                 const uploadRes = await fetch("/api/upload", {
                     method: "POST",
@@ -202,8 +222,27 @@ export default function ServicesPage() {
 
             // Upload image if a new one is selected
             if (imageFile) {
+                let fileToUpload = imageFile;
+
+                // Compress if larger than 5MB
+                if (imageFile.size > 5 * 1024 * 1024) {
+                    try {
+                        const options = {
+                            maxSizeMB: 2.5,
+                            maxWidthOrHeight: 1920,
+                            useWebWorker: true,
+                        };
+                        fileToUpload = await imageCompression(imageFile, options);
+                    } catch (error) {
+                        console.error("Compression error:", error);
+                        alert("Gagal mengkompresi gambar.");
+                        setIsSubmitting(false);
+                        return;
+                    }
+                }
+
                 const formData = new FormData();
-                formData.append("file", imageFile);
+                formData.append("file", fileToUpload);
 
                 const uploadRes = await fetch("/api/upload", {
                     method: "POST",

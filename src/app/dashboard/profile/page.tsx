@@ -21,6 +21,7 @@ import {
     Loader2
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
+import imageCompression from "browser-image-compression";
 
 export default function ProfilePage() {
     const { data: session, isPending } = useSession();
@@ -96,8 +97,27 @@ export default function ProfilePage() {
 
             // Handle image upload if a new file is selected
             if (imageFile) {
+                let fileToUpload = imageFile;
+
+                if (imageFile.size > 5 * 1024 * 1024) {
+                    setMessage({ type: "success", text: "Mengkompresi gambar..." });
+                    try {
+                        const options = {
+                            maxSizeMB: 2.5,
+                            maxWidthOrHeight: 1920,
+                            useWebWorker: true,
+                        };
+                        fileToUpload = await imageCompression(imageFile, options);
+                    } catch (error) {
+                        console.error("Compression error:", error);
+                        setMessage({ type: "error", text: "Gagal mengkompresi gambar." });
+                        setIsSaving(false);
+                        return;
+                    }
+                }
+
                 const formData = new FormData();
-                formData.append("file", imageFile);
+                formData.append("file", fileToUpload);
                 formData.append("folder", "avatars");
 
                 const uploadRes = await fetch("/api/upload", {
