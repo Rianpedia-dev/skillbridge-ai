@@ -43,12 +43,17 @@ export default function ProfilePage() {
     const isFreelancer = session?.user?.role === "freelancer";
     const userName = session?.user?.name || "";
     const userEmail = session?.user?.email || "";
+    const userImage = session?.user?.image || "";
+
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     useEffect(() => {
         if (session) {
             const nameParts = userName.split(" ");
             setFirstName(nameParts[0] || "");
             setLastName(nameParts.slice(1).join(" ") || "");
+            setImagePreview(userImage || null);
 
             // Only fetch freelancer profile if role is freelancer
             if (isFreelancer) {
@@ -87,8 +92,44 @@ export default function ProfilePage() {
         setMessage({ type: "", text: "" });
 
         try {
-            // Note: In a complete implementation, we would also update the core user name via auth API
-            // For now we focus on the freelancer profile creation/update
+            let imageUrl = userImage;
+
+            // Handle image upload if a new file is selected
+            if (imageFile) {
+                const formData = new FormData();
+                formData.append("file", imageFile);
+                formData.append("folder", "avatars");
+
+                const uploadRes = await fetch("/api/upload", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (uploadRes.ok) {
+                    const uploadData = await uploadRes.json();
+                    imageUrl = uploadData.url;
+                } else {
+                    const errorData = await uploadRes.json();
+                    setMessage({ type: "error", text: errorData.error || "Gagal mengunggah gambar profil" });
+                    setIsSaving(false);
+                    return;
+                }
+            }
+
+            // Update base user info (name, image)
+            const fullName = `${firstName} ${lastName}`.trim();
+            const userUpdateRes = await fetch("/api/user/profile", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: fullName || undefined,
+                    image: imageUrl !== userImage ? imageUrl : undefined
+                })
+            });
+
+            if (!userUpdateRes.ok) {
+                throw new Error("Gagal memperbarui profil pengguna");
+            }
 
             if (isFreelancer) {
                 const skillArray = skills.split(",").map(s => s.trim()).filter(Boolean);
@@ -107,12 +148,14 @@ export default function ProfilePage() {
                 });
 
                 if (!res.ok) throw new Error("Failed to update profile");
-                setMessage({ type: "success", text: "Profil berhasil diperbarui!" });
-            } else {
-                // If customer, we just show success for demo 
-                // (Backend needs an endpoint to update custom user fields)
-                setMessage({ type: "success", text: "Informasi dasar berhasil disimpan!" });
             }
+
+            setMessage({ type: "success", text: "Profil berhasil diperbarui. Halaman akan dimuat ulang..." });
+
+            // Reload page to refresh session state across app
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
 
         } catch (error) {
             setMessage({ type: "error", text: "Terjadi kesalahan saat menyimpan." });
@@ -151,13 +194,30 @@ export default function ProfilePage() {
                 {/* Left: Avatar & basic info */}
                 <Card className="border-border/50 lg:col-span-1">
                     <CardContent className="p-6 text-center">
-                        <div className="relative inline-block">
-                            <Avatar className="h-24 w-24 mx-auto">
-                                <AvatarFallback className="gradient-bg text-white text-2xl">{initial}</AvatarFallback>
+                        <div className="relative inline-block group">
+                            <Avatar className="h-24 w-24 mx-auto overflow-hidden">
+                                {imagePreview ? (
+                                    <img src={imagePreview} alt={userName} className="h-full w-full object-cover" />
+                                ) : (
+                                    <AvatarFallback className="gradient-bg text-white text-2xl">{initial}</AvatarFallback>
+                                )}
                             </Avatar>
-                            <button className="absolute bottom-0 right-0 h-8 w-8 rounded-full gradient-bg flex items-center justify-center border-2 border-background disabled:opacity-50" disabled>
+                            <label htmlFor="avatar-upload" className="absolute bottom-0 right-0 h-8 w-8 rounded-full gradient-bg flex items-center justify-center border-2 border-background cursor-pointer hover:opacity-90 transition-opacity">
                                 <Camera className="h-3.5 w-3.5 text-white" />
-                            </button>
+                                <input
+                                    id="avatar-upload"
+                                    type="file"
+                                    className="hidden"
+                                    accept="image/png, image/jpeg, image/webp"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            setImageFile(file);
+                                            setImagePreview(URL.createObjectURL(file));
+                                        }
+                                    }}
+                                />
+                            </label>
                         </div>
                         <h3 className="font-semibold mt-4">{userName || "User"}</h3>
                         <p className="text-sm text-muted-foreground capitalize">{session?.user?.role || "Customer"}</p>

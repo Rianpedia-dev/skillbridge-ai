@@ -70,73 +70,75 @@ export default function AdminUsersPage() {
                             <Loader2 className="h-8 w-8 animate-spin text-primary" />
                         </div>
                     ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="hover:bg-transparent border-border/50">
-                                    <TableHead className="w-[80px]">User</TableHead>
-                                    <TableHead>Details</TableHead>
-                                    <TableHead>Role</TableHead>
-                                    <TableHead>Joined</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredUsers.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
-                                            No users found.
-                                        </TableCell>
+                        <div className="overflow-x-auto w-full">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="hover:bg-transparent border-border/50">
+                                        <TableHead className="w-[80px]">User</TableHead>
+                                        <TableHead>Details</TableHead>
+                                        <TableHead>Role</TableHead>
+                                        <TableHead>Joined</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
-                                ) : (
-                                    filteredUsers.map((user) => (
-                                        <TableRow key={user.id} className="group hover:bg-primary/[0.02] border-border/20 transition-colors">
-                                            <TableCell>
-                                                <Avatar className="h-10 w-10 border border-primary/20 shadow-sm transition-transform group-hover:scale-105">
-                                                    <AvatarImage src={user.image || ""} />
-                                                    <AvatarFallback className="gradient-bg text-white font-bold text-xs uppercase">
-                                                        {user.name?.substring(0, 2)}
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-col">
-                                                    <span className="font-semibold text-sm group-hover:text-primary transition-colors underline-offset-4 group-hover:underline">
-                                                        {user.name}
-                                                    </span>
-                                                    <span className="text-xs text-muted-foreground">{user.email}</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge
-                                                    variant="secondary"
-                                                    className={cn(
-                                                        "text-[10px] font-bold py-0 h-5 px-2",
-                                                        user.role === "admin" ? "bg-red-500/10 text-red-600 border-red-500/20" :
-                                                            user.role === "freelancer" ? "bg-primary/10 text-primary border-primary/20" :
-                                                                "bg-muted text-muted-foreground"
-                                                    )}
-                                                >
-                                                    {user.role === "admin" && <Shield className="h-2.5 w-2.5 mr-1" />}
-                                                    {user.role.toUpperCase()}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-xs text-muted-foreground">
-                                                {new Date(user.createdAt).toLocaleDateString("id-ID", {
-                                                    day: "numeric",
-                                                    month: "short",
-                                                    year: "numeric"
-                                                })}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
-                                                    <MoreVertical className="h-4 w-4" />
-                                                </Button>
+                                </TableHeader>
+                                <TableBody>
+                                    {filteredUsers.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
+                                                No users found.
                                             </TableCell>
                                         </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
+                                    ) : (
+                                        filteredUsers.map((user) => (
+                                            <TableRow key={user.id} className="group hover:bg-primary/[0.02] border-border/20 transition-colors">
+                                                <TableCell>
+                                                    <Avatar className="h-10 w-10 border border-primary/20 shadow-sm transition-transform group-hover:scale-105">
+                                                        <AvatarImage src={user.image || ""} />
+                                                        <AvatarFallback className="gradient-bg text-white font-bold text-xs uppercase">
+                                                            {user.name?.substring(0, 2)}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex flex-col min-w-[150px]">
+                                                        <span className="font-semibold text-sm group-hover:text-primary transition-colors underline-offset-4 group-hover:underline">
+                                                            {user.name}
+                                                        </span>
+                                                        <span className="text-xs text-muted-foreground">{user.email}</span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge
+                                                        variant="secondary"
+                                                        className={cn(
+                                                            "text-[10px] font-bold py-0 h-5 px-2 whitespace-nowrap",
+                                                            user.role === "admin" ? "bg-red-500/10 text-red-600 border-red-500/20" :
+                                                                user.role === "freelancer" ? "bg-primary/10 text-primary border-primary/20" :
+                                                                    "bg-muted text-muted-foreground"
+                                                        )}
+                                                    >
+                                                        {user.role === "admin" && <Shield className="h-2.5 w-2.5 mr-1" />}
+                                                        {user.role.toUpperCase()}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                                                    {new Date(user.createdAt).toLocaleDateString("id-ID", {
+                                                        day: "numeric",
+                                                        month: "short",
+                                                        year: "numeric"
+                                                    })}
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+                                                        <MoreVertical className="h-4 w-4" />
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
                     )}
                 </CardContent>
             </Card>

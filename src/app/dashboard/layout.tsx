@@ -33,9 +33,9 @@ export default function DashboardLayout({
     const router = useRouter();
 
     return (
-        <div className="min-h-screen flex">
-            {/* Sidebar */}
-            <aside className="hidden md:flex w-64 flex-col border-r border-border/50 bg-card">
+        <div className="min-h-screen flex pt-0">
+            {/* Sidebar - with top padding for fixed navbar */}
+            <aside className="hidden md:flex w-64 flex-col border-r border-border/50 bg-card fixed top-16 bottom-0 left-0 z-30">
                 <div className="p-4">
                     <Link
                         href="/"
@@ -121,8 +121,8 @@ export default function DashboardLayout({
                 </nav>
             </div>
 
-            {/* Main content */}
-            <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8">{children}</main>
+            {/* Main content - offset for fixed sidebar */}
+            <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8 md:ml-64">{children}</main>
         </div>
     );
 }

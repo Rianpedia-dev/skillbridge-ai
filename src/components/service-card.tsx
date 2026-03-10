@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { StarRating } from "@/components/ui/star-rating";
+import { MapPin } from "lucide-react";
 
 interface ServiceCardProps {
     id: string;
@@ -31,54 +32,58 @@ export function ServiceCard({
     providerInitials,
     location,
     isOnSite,
+    image,
 }: ServiceCardProps) {
     return (
         <Link href={`/marketplace/${id}`}>
-            <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 border-border/50">
-                {/* Thumbnail placeholder */}
-                <div className="relative h-44 overflow-hidden gradient-bg opacity-80">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-4xl font-bold text-white/20">{title.charAt(0)}</span>
-                    </div>
-                    <Badge className="absolute top-3 left-3 bg-background/80 text-foreground backdrop-blur-sm text-xs border-0">
+            <Card className="group overflow-hidden card-marketplace border-border/50 h-full">
+                {/* Thumbnail */}
+                <div className="relative aspect-[16/10] overflow-hidden gradient-bg opacity-80">
+                    {image ? (
+                        <img src={image} alt={title} className="absolute inset-0 h-full w-full object-cover" />
+                    ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="text-4xl md:text-5xl font-bold text-white/20">{title.charAt(0)}</span>
+                        </div>
+                    )}
+                    <Badge className="absolute top-2 left-2 bg-background/80 text-foreground backdrop-blur-sm text-[10px] md:text-xs border-0 px-1.5 py-0.5 md:px-2 md:py-0.5">
                         {category}
                     </Badge>
                     {(location || isOnSite) && (
-                        <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-background/80 text-foreground backdrop-blur-sm text-[10px] font-medium px-2 py-1 rounded-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-map-pin"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
-                            {isOnSite ? "Di Lokasi" : ""} {location && `• ${location}`}
+                        <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-background/80 text-foreground backdrop-blur-sm text-[9px] md:text-[10px] font-medium px-1.5 py-0.5 rounded-full">
+                            <MapPin className="h-2.5 w-2.5 md:h-3 md:w-3" />
+                            <span className="truncate max-w-[80px]">
+                                {isOnSite ? "Di Lokasi" : ""} {location && `${location}`}
+                            </span>
                         </div>
                     )}
                 </div>
 
-                <CardContent className="p-4">
-                    <h3 className="font-semibold text-sm line-clamp-1 group-hover:text-primary transition-colors">
+                <CardContent className="p-2.5 md:p-4">
+                    <h3 className="font-semibold text-xs md:text-sm line-clamp-2 group-hover:text-primary transition-colors leading-tight">
                         {title}
                     </h3>
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                        {description}
-                    </p>
 
                     {/* Provider */}
-                    <div className="flex items-center gap-2 mt-3">
-                        <Avatar className="h-6 w-6">
-                            <AvatarFallback className="text-[10px] gradient-bg text-white">
+                    <div className="flex items-center gap-1.5 mt-2">
+                        <Avatar className="h-5 w-5 md:h-6 md:w-6">
+                            <AvatarFallback className="text-[8px] md:text-[10px] gradient-bg text-white">
                                 {providerInitials}
                             </AvatarFallback>
                         </Avatar>
-                        <span className="text-xs text-muted-foreground">{providerName}</span>
+                        <span className="text-[10px] md:text-xs text-muted-foreground truncate">{providerName}</span>
                     </div>
 
                     {/* Rating & Price */}
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
-                        <div className="flex items-center gap-1.5">
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
+                        <div className="flex items-center gap-1">
                             <StarRating rating={rating} size="sm" />
-                            <span className="text-xs text-muted-foreground">({reviewCount})</span>
+                            <span className="text-[10px] md:text-xs text-muted-foreground">({reviewCount})</span>
                         </div>
-                        <div className="text-right">
-                            <p className="text-xs text-muted-foreground">Mulai dari</p>
-                            <p className="text-sm font-bold text-primary">{price}</p>
-                        </div>
+                    </div>
+                    <div className="mt-1.5">
+                        <p className="text-[10px] md:text-xs text-muted-foreground">Mulai dari</p>
+                        <p className="text-xs md:text-sm font-bold text-primary">{price}</p>
                     </div>
                 </CardContent>
             </Card>

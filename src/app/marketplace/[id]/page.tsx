@@ -11,6 +11,7 @@ import { StarRating } from "@/components/ui/star-rating";
 import { ReviewCard } from "@/components/review-card";
 import {
     ArrowLeft,
+    ArrowRight,
     Clock,
     RefreshCw,
     CheckCircle,
@@ -87,8 +88,8 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
     ];
 
     return (
-        <div className="min-h-screen py-8">
-            <div className="container mx-auto px-4 md:px-6">
+        <div className="min-h-screen pb-20 md:pb-0">
+            <div className="container mx-auto px-4 md:px-6 py-4 md:py-8">
                 {/* Back */}
                 <Link
                     href="/marketplace"
@@ -102,7 +103,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
                     {/* Left: Service info */}
                     <div className="lg:col-span-2 space-y-6">
                         {/* Banner */}
-                        <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden gradient-bg">
+                        <div className="relative aspect-[16/9] md:h-80 rounded-xl md:rounded-2xl overflow-hidden gradient-bg">
                             {service.image ? (
                                 <img src={service.image} alt={service.title} className="w-full h-full object-cover" />
                             ) : (
@@ -221,7 +222,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
                         {packages.map((pkg) => (
                             <Card
                                 key={pkg.name}
-                                className={`border-border/50 transition-all ${pkg.popular ? "ring-2 ring-primary shadow-lg shadow-primary/10" : ""
+                                className={`border-border/50 transition-all sticky top-20 ${pkg.popular ? "ring-2 ring-primary shadow-lg shadow-primary/10" : ""
                                     }`}
                             >
                                 {pkg.popular && (
@@ -284,6 +285,20 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
                             </CardContent>
                         </Card>
                     </div>
+                </div>
+
+                {/* Mobile Bottom CTA */}
+                <div className="md:hidden mobile-bottom-cta flex items-center justify-between gap-3">
+                    <div>
+                        <p className="text-[10px] text-muted-foreground">Mulai dari</p>
+                        <p className="text-base font-bold gradient-text">{formatPrice(service.price)}</p>
+                    </div>
+                    <Link href={`/order?serviceId=${service.id}`} className="flex-1 max-w-[200px]">
+                        <Button className="w-full gradient-bg text-white border-0 hover:opacity-90 h-10 text-sm font-semibold gap-1">
+                            Pesan Sekarang
+                            <ArrowRight className="h-3.5 w-3.5" />
+                        </Button>
+                    </Link>
                 </div>
             </div>
         </div>

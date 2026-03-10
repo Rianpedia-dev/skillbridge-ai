@@ -79,91 +79,93 @@ export default function AdminOrdersPage() {
                             <Loader2 className="h-8 w-8 animate-spin text-primary" />
                         </div>
                     ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="hover:bg-transparent border-border/50">
-                                    <TableHead>Order #</TableHead>
-                                    <TableHead>Service</TableHead>
-                                    <TableHead>Customer</TableHead>
-                                    <TableHead>Freelancer</TableHead>
-                                    <TableHead>Total</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredOrders.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
-                                            No orders found.
-                                        </TableCell>
+                        <div className="overflow-x-auto w-full">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="hover:bg-transparent border-border/50">
+                                        <TableHead className="whitespace-nowrap">Order #</TableHead>
+                                        <TableHead>Service</TableHead>
+                                        <TableHead>Customer</TableHead>
+                                        <TableHead>Freelancer</TableHead>
+                                        <TableHead>Total</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
                                     </TableRow>
-                                ) : (
-                                    filteredOrders.map((order) => (
-                                        <TableRow key={order.id} className="group hover:bg-primary/[0.02] border-border/20 transition-colors">
-                                            <TableCell className="font-mono text-[10px] font-bold text-primary">
-                                                {order.orderNumber}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-col">
-                                                    <span className="font-semibold text-sm group-hover:text-primary transition-colors truncate max-w-[150px]">
-                                                        {order.service?.title}
-                                                    </span>
-                                                    <span className="text-[10px] text-muted-foreground">
-                                                        {new Date(order.createdAt).toLocaleDateString("id-ID")}
-                                                    </span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <Avatar className="h-5 w-5 border border-border">
-                                                        <AvatarFallback className="text-[7px] font-black uppercase">
-                                                            {order.customer?.name?.substring(0, 2)}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                    <span className="text-xs">{order.customer?.name}</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <Avatar className="h-5 w-5 border border-border">
-                                                        <AvatarFallback className="text-[7px] font-black uppercase">
-                                                            {order.freelancer?.name?.substring(0, 2)}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                    <span className="text-xs">{order.freelancer?.name}</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-sm font-bold">
-                                                {formatCurrency(Number(order.totalPrice))}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge
-                                                    className={cn(
-                                                        "text-[9px] font-bold h-4 px-1.5",
-                                                        order.status === "completed" ? "bg-green-500/10 text-green-600" :
-                                                            order.status === "pending" ? "bg-blue-500/10 text-blue-600" :
-                                                                "bg-yellow-500/10 text-yellow-600"
-                                                    )}
-                                                >
-                                                    {order.status.toUpperCase()}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-1">
-                                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary">
-                                                        <FileText className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary">
-                                                        <MoreVertical className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                </div>
+                                </TableHeader>
+                                <TableBody>
+                                    {filteredOrders.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
+                                                No orders found.
                                             </TableCell>
                                         </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
+                                    ) : (
+                                        filteredOrders.map((order) => (
+                                            <TableRow key={order.id} className="group hover:bg-primary/[0.02] border-border/20 transition-colors">
+                                                <TableCell className="font-mono text-[10px] font-bold text-primary">
+                                                    {order.orderNumber}
+                                                </TableCell>
+                                                <TableCell className="min-w-[150px]">
+                                                    <div className="flex flex-col">
+                                                        <span className="font-semibold text-sm group-hover:text-primary transition-colors truncate max-w-[150px]">
+                                                            {order.service?.title}
+                                                        </span>
+                                                        <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                                                            {new Date(order.createdAt).toLocaleDateString("id-ID")}
+                                                        </span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="min-w-[120px]">
+                                                    <div className="flex items-center gap-2">
+                                                        <Avatar className="h-5 w-5 border border-border">
+                                                            <AvatarFallback className="text-[7px] font-black uppercase">
+                                                                {order.customer?.name?.substring(0, 2)}
+                                                            </AvatarFallback>
+                                                        </Avatar>
+                                                        <span className="text-xs whitespace-nowrap">{order.customer?.name}</span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="min-w-[120px]">
+                                                    <div className="flex items-center gap-2">
+                                                        <Avatar className="h-5 w-5 border border-border">
+                                                            <AvatarFallback className="text-[7px] font-black uppercase">
+                                                                {order.freelancer?.name?.substring(0, 2)}
+                                                            </AvatarFallback>
+                                                        </Avatar>
+                                                        <span className="text-xs whitespace-nowrap">{order.freelancer?.name}</span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-sm font-bold whitespace-nowrap">
+                                                    {formatCurrency(Number(order.totalPrice))}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge
+                                                        className={cn(
+                                                            "text-[9px] font-bold h-4 px-1.5 whitespace-nowrap",
+                                                            order.status === "completed" ? "bg-green-500/10 text-green-600" :
+                                                                order.status === "pending" ? "bg-blue-500/10 text-blue-600" :
+                                                                    "bg-yellow-500/10 text-yellow-600"
+                                                        )}
+                                                    >
+                                                        {order.status.toUpperCase()}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <div className="flex justify-end gap-1">
+                                                        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary">
+                                                            <FileText className="h-3.5 w-3.5" />
+                                                        </Button>
+                                                        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary">
+                                                            <MoreVertical className="h-3.5 w-3.5" />
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
                     )}
                 </CardContent>
             </Card>

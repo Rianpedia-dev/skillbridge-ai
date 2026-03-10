@@ -178,27 +178,27 @@ export default function PriceEstimatorPage() {
                                         <p className="text-sm opacity-70 mt-2">Berdasarkan analisis 247 proyek serupa</p>
                                     </div>
                                     <CardContent className="p-5 space-y-4">
-                                        <div className="grid grid-cols-3 gap-3 text-center">
-                                            <div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-3 text-center">
+                                            <div className="bg-muted/50 p-3 rounded-lg sm:bg-transparent sm:p-0">
                                                 <div className="flex items-center justify-center gap-1 text-green-500 mb-1">
-                                                    <TrendingDown className="h-3.5 w-3.5" />
-                                                    <span className="text-xs font-medium">Minimum</span>
+                                                    <TrendingDown className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+                                                    <span className="text-sm sm:text-xs font-medium">Minimum</span>
                                                 </div>
-                                                <p className="font-bold text-sm">Rp1.500.000</p>
+                                                <p className="font-bold text-lg sm:text-sm">Rp1.500.000</p>
                                             </div>
-                                            <div>
+                                            <div className="bg-primary/5 p-3 rounded-lg sm:bg-transparent sm:p-0 ring-1 ring-primary/20 sm:ring-0">
                                                 <div className="flex items-center justify-center gap-1 text-primary mb-1">
-                                                    <BarChart3 className="h-3.5 w-3.5" />
-                                                    <span className="text-xs font-medium">Rata-rata</span>
+                                                    <BarChart3 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+                                                    <span className="text-sm sm:text-xs font-medium">Rata-rata</span>
                                                 </div>
-                                                <p className="font-bold text-sm">Rp2.200.000</p>
+                                                <p className="font-bold text-lg sm:text-sm">Rp2.200.000</p>
                                             </div>
-                                            <div>
+                                            <div className="bg-muted/50 p-3 rounded-lg sm:bg-transparent sm:p-0">
                                                 <div className="flex items-center justify-center gap-1 text-orange-500 mb-1">
-                                                    <TrendingUp className="h-3.5 w-3.5" />
-                                                    <span className="text-xs font-medium">Maksimum</span>
+                                                    <TrendingUp className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+                                                    <span className="text-sm sm:text-xs font-medium">Maksimum</span>
                                                 </div>
-                                                <p className="font-bold text-sm">Rp3.000.000</p>
+                                                <p className="font-bold text-lg sm:text-sm">Rp3.000.000</p>
                                             </div>
                                         </div>
                                     </CardContent>

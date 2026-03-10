@@ -78,73 +78,75 @@ export default function AdminServicesPage() {
                             <Loader2 className="h-8 w-8 animate-spin text-primary" />
                         </div>
                     ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="hover:bg-transparent border-border/50">
-                                    <TableHead>Service Title</TableHead>
-                                    <TableHead>Provider</TableHead>
-                                    <TableHead>Category</TableHead>
-                                    <TableHead>Price</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredServices.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
-                                            No services found.
-                                        </TableCell>
+                        <div className="overflow-x-auto w-full">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="hover:bg-transparent border-border/50">
+                                        <TableHead className="whitespace-nowrap">Service Title</TableHead>
+                                        <TableHead>Provider</TableHead>
+                                        <TableHead>Category</TableHead>
+                                        <TableHead>Price</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
                                     </TableRow>
-                                ) : (
-                                    filteredServices.map((service) => (
-                                        <TableRow key={service.id} className="group hover:bg-primary/[0.02] border-border/20 transition-colors">
-                                            <TableCell>
-                                                <div className="flex flex-col">
-                                                    <span className="font-semibold text-sm truncate max-w-[200px] group-hover:text-primary transition-colors">
-                                                        {service.title}
-                                                    </span>
-                                                    <span className="text-[10px] text-muted-foreground uppercase font-medium">#{service.id.substring(0, 8)}</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <Avatar className="h-6 w-6 border border-border">
-                                                        <AvatarFallback className="text-[8px] font-bold">
-                                                            {service.provider?.name?.substring(0, 2)}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                    <span className="text-xs font-medium">{service.provider?.name}</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="outline" className="text-[10px] uppercase font-bold text-muted-foreground border-border/50">
-                                                    {service.category?.name || "Uncategorized"}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-sm font-bold">
-                                                {formatCurrency(service.price)}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge className={cn("text-[10px] font-bold h-5", service.isActive ? "bg-green-500/10 text-green-600" : "bg-red-500/10 text-red-600")}>
-                                                    {service.isActive ? "ACTIVE" : "INACTIVE"}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-1">
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
-                                                        <ExternalLink className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
-                                                        <MoreVertical className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
+                                </TableHeader>
+                                <TableBody>
+                                    {filteredServices.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
+                                                No services found.
                                             </TableCell>
                                         </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
+                                    ) : (
+                                        filteredServices.map((service) => (
+                                            <TableRow key={service.id} className="group hover:bg-primary/[0.02] border-border/20 transition-colors">
+                                                <TableCell className="min-w-[200px]">
+                                                    <div className="flex flex-col">
+                                                        <span className="font-semibold text-sm truncate max-w-[200px] group-hover:text-primary transition-colors">
+                                                            {service.title}
+                                                        </span>
+                                                        <span className="text-[10px] text-muted-foreground uppercase font-medium">#{service.id.substring(0, 8)}</span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="min-w-[150px]">
+                                                    <div className="flex items-center gap-2">
+                                                        <Avatar className="h-6 w-6 border border-border">
+                                                            <AvatarFallback className="text-[8px] font-bold">
+                                                                {service.provider?.name?.substring(0, 2)}
+                                                            </AvatarFallback>
+                                                        </Avatar>
+                                                        <span className="text-xs font-medium whitespace-nowrap">{service.provider?.name}</span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant="outline" className="text-[10px] uppercase font-bold text-muted-foreground border-border/50 whitespace-nowrap">
+                                                        {service.category?.name || "Uncategorized"}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-sm font-bold whitespace-nowrap">
+                                                    {formatCurrency(service.price)}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge className={cn("text-[10px] font-bold h-5", service.isActive ? "bg-green-500/10 text-green-600" : "bg-red-500/10 text-red-600")}>
+                                                        {service.isActive ? "ACTIVE" : "INACTIVE"}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <div className="flex justify-end gap-1">
+                                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+                                                            <ExternalLink className="h-4 w-4" />
+                                                        </Button>
+                                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+                                                            <MoreVertical className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
                     )}
                 </CardContent>
             </Card>

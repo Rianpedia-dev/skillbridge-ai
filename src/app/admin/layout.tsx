@@ -24,7 +24,7 @@ export default async function AdminLayout({
 
             <div className="flex">
                 <AdminSidebar />
-                <main className="flex-1 lg:ml-64 md:ml-20">
+                <main className="flex-1 transition-all duration-300 md:ml-20 lg:ml-64 pt-16 md:pt-0">
                     <div className="container mx-auto p-4 md:p-8 max-w-7xl animate-in fade-in slide-in-from-bottom-4 duration-700">
                         {children}
                     </div>

@@ -12,28 +12,56 @@ export async function GET(request: NextRequest) {
         const category = searchParams.get("category");
         const search = searchParams.get("search");
         const sortBy = searchParams.get("sort") || "newest";
+        const providerId = searchParams.get("providerId");
 
-        const conditions = [eq(service.isActive, true)];
+        const conditions = [];
 
+        // If filtering by provider, show all including inactive (for dashboard)
+        // Otherwise only show active services (for marketplace)
+        if (providerId) {
+            conditions.push(eq(service.providerId, providerId));
+        } else {
+            conditions.push(eq(service.isActive, true));
+        }
+
+        // Category filter — support slug-based filtering
         if (category) {
-            conditions.push(eq(service.categoryId, category));
+            // First try to find category by slug
+            const categoryRecord = await db.query.serviceCategory.findFirst({
+                where: eq(serviceCategory.slug, category),
+            });
+            if (categoryRecord) {
+                conditions.push(eq(service.categoryId, categoryRecord.id));
+            } else {
+                // Fallback: try direct ID match
+                conditions.push(eq(service.categoryId, category));
+            }
         }
 
         if (search) {
             conditions.push(ilike(service.title, `%${search}%`));
         }
 
-        const orderBy =
-            sortBy === "price_asc"
-                ? asc(service.price)
-                : sortBy === "price_desc"
-                    ? desc(service.price)
-                    : sortBy === "rating"
-                        ? desc(service.rating)
-                        : desc(service.createdAt);
+        // Sort mapping
+        let orderBy;
+        switch (sortBy) {
+            case "price-low":
+            case "price_asc":
+                orderBy = asc(service.price);
+                break;
+            case "price-high":
+            case "price_desc":
+                orderBy = desc(service.price);
+                break;
+            case "rating":
+                orderBy = desc(service.rating);
+                break;
+            default:
+                orderBy = desc(service.createdAt);
+        }
 
         const services = await db.query.service.findMany({
-            where: and(...conditions),
+            where: conditions.length > 0 ? and(...conditions) : undefined,
             orderBy: [orderBy],
             with: {
                 category: true,

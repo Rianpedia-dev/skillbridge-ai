@@ -18,24 +18,22 @@ import {
     SlidersHorizontal,
     Palette,
     Code,
-    Video,
     Camera,
     GraduationCap,
     Wrench,
     X,
+    Sparkles,
 } from "lucide-react";
 
 const categories = [
-    { value: "all", label: "Semua Kategori", icon: SlidersHorizontal },
+    { value: "all", label: "Semua", icon: SlidersHorizontal },
     { value: "design", label: "Design", icon: Palette },
     { value: "programming", label: "Programming", icon: Code },
-    { value: "tutor", label: "Tutor & Pendidikan", icon: GraduationCap },
-    { value: "home-service", label: "Home Service & Pertukangan", icon: Wrench },
-    { value: "event", label: "Event & Fotografi", icon: Camera },
-    { value: "otomotif", label: "Otomotif & Servis", icon: Wrench },
+    { value: "tutor", label: "Tutor", icon: GraduationCap },
+    { value: "home-service", label: "Home Service", icon: Wrench },
+    { value: "event", label: "Fotografi", icon: Camera },
+    { value: "otomotif", label: "Otomotif", icon: Wrench },
 ];
-
-
 
 export default function MarketplacePage() {
     const [searchQuery, setSearchQuery] = useState("");
@@ -76,105 +74,106 @@ export default function MarketplacePage() {
     };
 
     return (
-        <div className="min-h-screen py-8">
-            {/* Background */}
-            <div className="absolute inset-0 -z-10">
-                <div className="absolute top-0 left-1/3 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
+        <div className="min-h-screen">
+            {/* Search Header Banner */}
+            <div className="promo-gradient py-6 md:py-10">
+                <div className="container mx-auto px-4 md:px-6">
+                    <div className="max-w-2xl mx-auto text-center mb-4 md:mb-6">
+                        <h1 className="text-xl md:text-3xl font-bold text-white mb-1 md:mb-2">
+                            Temukan Layanan Profesional
+                        </h1>
+                        <p className="text-white/70 text-xs md:text-sm">
+                            Ribuan freelancer siap membantu kebutuhan Anda
+                        </p>
+                    </div>
+                    <div className="max-w-2xl mx-auto flex gap-2">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
+                            <Input
+                                placeholder="Cari jasa, misalnya: desain logo, website..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-9 md:pl-11 h-10 md:h-12 bg-background border-0 text-sm md:text-base rounded-lg md:rounded-xl shadow-lg"
+                            />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery("")}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                                >
+                                    <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                                </button>
+                            )}
+                        </div>
+                        <Button className="h-10 md:h-12 px-4 md:px-6 bg-white text-primary hover:bg-white/90 font-semibold rounded-lg md:rounded-xl shadow-lg">
+                            <Search className="h-4 w-4 md:mr-2" />
+                            <span className="hidden md:inline">Cari</span>
+                        </Button>
+                    </div>
+                </div>
             </div>
 
-            <div className="container mx-auto px-4 md:px-6">
-                {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl md:text-4xl font-bold mb-2">
-                        <span className="gradient-text">Marketplace</span> Jasa
-                    </h1>
-                    <p className="text-muted-foreground">
-                        Temukan layanan profesional dari freelancer terpercaya di Indonesia.
-                    </p>
-                </div>
-
-                {/* Search & Filter */}
-                <div className="flex flex-col md:flex-row gap-3 mb-8">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Cari layanan... (contoh: desain logo, website)"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-10 h-11"
-                        />
-                        {searchQuery && (
-                            <button
-                                onClick={() => setSearchQuery("")}
-                                className="absolute right-3 top-1/2 -translate-y-1/2"
+            <div className="container mx-auto px-3 md:px-6 py-4 md:py-6">
+                {/* Filter Bar */}
+                <div className="flex flex-col gap-3 mb-4 md:mb-6">
+                    {/* Category Chips - horizontal scroll */}
+                    <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-3 px-3 md:mx-0 md:px-0">
+                        {categories.map((cat) => (
+                            <Badge
+                                key={cat.value}
+                                variant={selectedCategory === cat.value ? "default" : "secondary"}
+                                className={`cursor-pointer transition-all whitespace-nowrap shrink-0 text-xs md:text-sm py-1.5 px-3 ${selectedCategory === cat.value
+                                    ? "gradient-bg text-white border-0"
+                                    : "hover:bg-primary/10"
+                                    }`}
+                                onClick={() => setSelectedCategory(cat.value)}
                             >
-                                <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
-                            </button>
-                        )}
+                                <cat.icon className="h-3 w-3 md:h-3.5 md:w-3.5 mr-1" />
+                                {cat.label}
+                            </Badge>
+                        ))}
                     </div>
-                    <Select value={selectedCategory} onValueChange={(v) => setSelectedCategory(v ?? "all")}>
-                        <SelectTrigger className="w-full md:w-52 h-11">
-                            <SelectValue placeholder="Kategori" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {categories.map((cat) => (
-                                <SelectItem key={cat.value} value={cat.value}>
-                                    <span className="flex items-center gap-2">
-                                        <cat.icon className="h-4 w-4" />
-                                        {cat.label}
+
+                    {/* Sort + Count */}
+                    <div className="flex items-center justify-between">
+                        <p className="text-xs md:text-sm text-muted-foreground">
+                            <span className="font-semibold text-foreground">{services.length}</span> layanan ditemukan
+                        </p>
+                        <Select value={sortBy} onValueChange={(v) => setSortBy(v ?? "recommended")}>
+                            <SelectTrigger className="w-36 md:w-44 h-8 md:h-9 text-xs md:text-sm">
+                                <SelectValue placeholder="Urutkan" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="recommended">
+                                    <span className="flex items-center gap-1.5">
+                                        <Sparkles className="h-3.5 w-3.5" />
+                                        Rekomendasi AI
                                     </span>
                                 </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    <Select value={sortBy} onValueChange={(v) => setSortBy(v ?? "recommended")}>
-                        <SelectTrigger className="w-full md:w-44 h-11">
-                            <SelectValue placeholder="Urutkan" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="recommended">Rekomendasi AI</SelectItem>
-                            <SelectItem value="rating">Rating Tertinggi</SelectItem>
-                            <SelectItem value="price-low">Harga Terendah</SelectItem>
-                            <SelectItem value="price-high">Harga Tertinggi</SelectItem>
-                            <SelectItem value="newest">Terbaru</SelectItem>
-                        </SelectContent>
-                    </Select>
+                                <SelectItem value="rating">Rating Tertinggi</SelectItem>
+                                <SelectItem value="price-low">Harga Terendah</SelectItem>
+                                <SelectItem value="price-high">Harga Tertinggi</SelectItem>
+                                <SelectItem value="newest">Terbaru</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
 
-                {/* Category chips */}
-                <div className="flex flex-wrap gap-2 mb-6">
-                    {categories.map((cat) => (
-                        <Badge
-                            key={cat.value}
-                            variant={selectedCategory === cat.value ? "default" : "secondary"}
-                            className={`cursor-pointer transition-all ${selectedCategory === cat.value
-                                ? "gradient-bg text-white border-0"
-                                : "hover:bg-primary/10"
-                                }`}
-                            onClick={() => setSelectedCategory(cat.value)}
-                        >
-                            <cat.icon className="h-3.5 w-3.5 mr-1" />
-                            {cat.label}
-                        </Badge>
-                    ))}
-                </div>
-
-                {/* Results info */}
-                <div className="flex items-center justify-between mb-6">
-                    <p className="text-sm text-muted-foreground">
-                        Menampilkan <span className="font-medium text-foreground">{services.length}</span> layanan
-                    </p>
-                </div>
-
-                {/* Services Grid */}
+                {/* Services Grid: 2 columns on mobile, 3 on md, 4 on lg */}
                 {isLoading ? (
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {[1, 2, 3, 4, 5, 6].map((i) => (
-                            <Card key={i} className="h-72 animate-pulse bg-muted border-border/50" />
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                            <Card key={i} className="overflow-hidden border-border/50">
+                                <div className="aspect-[16/10] animate-pulse bg-muted" />
+                                <CardContent className="p-3 space-y-2">
+                                    <div className="h-3 bg-muted animate-pulse rounded w-3/4" />
+                                    <div className="h-3 bg-muted animate-pulse rounded w-1/2" />
+                                    <div className="h-3 bg-muted animate-pulse rounded w-1/3" />
+                                </CardContent>
+                            </Card>
                         ))}
                     </div>
                 ) : services.length > 0 ? (
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
                         {services.map((service) => (
                             <ServiceCard
                                 key={service.id}
@@ -189,6 +188,7 @@ export default function MarketplacePage() {
                                 providerInitials={service.provider?.name?.split(" ").map((n: string) => n[0]).join("").toUpperCase() || "F"}
                                 isOnSite={service.isOnSite}
                                 location={service.location}
+                                image={service.image}
                             />
                         ))}
                     </div>
