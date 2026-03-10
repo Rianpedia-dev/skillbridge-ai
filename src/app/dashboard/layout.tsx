@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { signOut } from "@/lib/auth-client";
+import { signOut, useSession } from "@/lib/auth-client";
 import {
     LayoutDashboard,
     ShoppingBag,
@@ -13,15 +13,19 @@ import {
     LogOut,
     Sparkles,
     ChevronLeft,
+    MessageSquare,
+    Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-const sidebarLinks = [
-    { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-    { href: "/dashboard/orders", label: "Pesanan Saya", icon: ShoppingBag },
-    { href: "/dashboard/services", label: "Layanan Saya", icon: Briefcase },
-    { href: "/dashboard/profile", label: "Profil", icon: User },
+const allSidebarLinks = [
+    { href: "/admin", label: "Admin Panel", icon: Shield, adminOnly: true, adminVisible: true },
+    { href: "/dashboard", label: "Overview", icon: LayoutDashboard, adminOnly: false, adminVisible: true },
+    { href: "/dashboard/orders", label: "Pesanan Saya", icon: ShoppingBag, adminOnly: false, adminVisible: false },
+    { href: "/dashboard/services", label: "Layanan Saya", icon: Briefcase, adminOnly: false, adminVisible: false },
+    { href: "/dashboard/chat", label: "Pesan", icon: MessageSquare, adminOnly: false, adminVisible: false },
+    { href: "/dashboard/profile", label: "Profil", icon: User, adminOnly: false, adminVisible: true },
 ];
 
 export default function DashboardLayout({
@@ -31,6 +35,15 @@ export default function DashboardLayout({
 }) {
     const pathname = usePathname();
     const router = useRouter();
+    const { data: session } = useSession();
+    const isAdmin = session?.user?.role?.toLowerCase() === "admin";
+
+    const sidebarLinks = allSidebarLinks.filter(link => {
+        if (isAdmin) {
+            return link.adminVisible;
+        }
+        return !link.adminOnly;
+    });
 
     return (
         <div className="min-h-screen flex pt-0">
@@ -45,8 +58,8 @@ export default function DashboardLayout({
                         Kembali ke Home
                     </Link>
                     <div className="flex items-center gap-2 mb-1">
-                        <div className="h-10 w-10 rounded-xl gradient-bg flex items-center justify-center">
-                            <Sparkles className="h-5 w-5 text-white" />
+                        <div className="h-10 w-10 flex items-center justify-center">
+                            <img src="/lg.png" alt="SkillBridge Logo" className="h-full w-full object-contain" />
                         </div>
                         <div>
                             <h2 className="font-bold text-sm">Dashboard</h2>
@@ -58,7 +71,7 @@ export default function DashboardLayout({
                 <Separator />
 
                 <nav className="flex-1 p-3 space-y-1">
-                    {sidebarLinks.map((link) => {
+                    {sidebarLinks.map((link: typeof allSidebarLinks[number]) => {
                         const isActive = pathname === link.href;
                         return (
                             <Link
@@ -102,7 +115,7 @@ export default function DashboardLayout({
             {/* Mobile nav */}
             <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass border-t border-border/50">
                 <nav className="flex items-center justify-around py-2">
-                    {sidebarLinks.map((link) => {
+                    {sidebarLinks.map((link: typeof allSidebarLinks[number]) => {
                         const isActive = pathname === link.href;
                         return (
                             <Link

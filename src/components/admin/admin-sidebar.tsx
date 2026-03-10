@@ -8,6 +8,7 @@ import {
     Users,
     ShoppingBag,
     Briefcase,
+    PieChart,
     Settings,
     ChevronLeft,
     LogOut,
@@ -20,8 +21,13 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 
 const menuItems = [
     {
-        title: "Overview",
+        title: "User Dashboard",
+        href: "/dashboard",
         icon: LayoutDashboard,
+    },
+    {
+        title: "Overview",
+        icon: PieChart,
         href: "/admin",
     },
     {
@@ -39,6 +45,11 @@ const menuItems = [
         icon: ShoppingBag,
         href: "/admin/orders",
     },
+    {
+        title: "Settings",
+        icon: Settings,
+        href: "/admin/settings",
+    },
 ];
 
 export function AdminSidebar() {
@@ -50,8 +61,8 @@ export function AdminSidebar() {
         <div className="flex h-full flex-col gap-4 p-4">
             {/* Logo */}
             <div className="flex items-center gap-3 px-2 py-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl gradient-bg text-white shadow-lg">
-                    <ShieldCheck className="h-6 w-6" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center shadow-lg">
+                    <img src="/lg.png" alt="SkillBridge Logo" className="h-full w-full object-contain" />
                 </div>
                 {(!isCollapsed || isMobile) && (
                     <div className="flex flex-col">
@@ -125,7 +136,9 @@ export function AdminSidebar() {
             {/* Mobile Header */}
             <div className="md:hidden fixed top-0 left-0 right-0 h-16 border-b border-border bg-card/50 backdrop-blur-xl z-40 flex items-center px-4 justify-between">
                 <div className="flex items-center gap-2">
-                    <ShieldCheck className="h-6 w-6 text-primary" />
+                    <div className="h-6 w-6">
+                        <img src="/lg.png" alt="SkillBridge Logo" className="h-full w-full object-contain" />
+                    </div>
                     <span className="font-bold gradient-text tracking-tight">Admin Panel</span>
                 </div>
                 <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>

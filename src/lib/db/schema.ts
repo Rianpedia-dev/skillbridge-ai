@@ -54,6 +54,8 @@ export const user = pgTable("user", {
     emailVerified: boolean("email_verified").notNull().default(false),
     image: text("image"),
     role: userRoleEnum("role").notNull().default("customer"),
+    banned: boolean("banned").notNull().default(false),
+    bannedReason: text("banned_reason"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -234,6 +236,44 @@ export const review = pgTable("review", {
     createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// --- Chat Room ---
+export const chatRoom = pgTable("chat_room", {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    participantOneId: text("participant_one_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+    participantTwoId: text("participant_two_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// --- Chat Message ---
+export const chatMessage = pgTable("chat_message", {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    roomId: text("room_id")
+        .notNull()
+        .references(() => chatRoom.id, { onDelete: "cascade" }),
+    senderId: text("sender_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    isRead: boolean("is_read").notNull().default(false),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// --- Site Settings ---
+export const siteSettings = pgTable("site_settings", {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    key: text("key").notNull().unique(), // e.g. "hero_image_1"
+    value: text("value").notNull(), // URL or JSON data
+    label: text("label"), // human-readable label
+    type: text("type").notNull().default("text"), // "image", "text", etc.
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // ============================================================
 // RELATIONS
 // ============================================================
@@ -256,6 +296,9 @@ export const userRelations = relations(user, ({ one, many }) => ({
     }),
     balanceTransactions: many(balanceTransaction),
     payouts: many(payout),
+    chatRoomsOne: many(chatRoom, { relationName: "participantOne" }),
+    chatRoomsTwo: many(chatRoom, { relationName: "participantTwo" }),
+    sentMessages: many(chatMessage),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -345,6 +388,31 @@ export const balanceTransactionRelations = relations(balanceTransaction, ({ one 
 export const payoutRelations = relations(payout, ({ one }) => ({
     user: one(user, {
         fields: [payout.userId],
+        references: [user.id],
+    }),
+}));
+
+export const chatRoomRelations = relations(chatRoom, ({ one, many }) => ({
+    participantOne: one(user, {
+        fields: [chatRoom.participantOneId],
+        references: [user.id],
+        relationName: "participantOne",
+    }),
+    participantTwo: one(user, {
+        fields: [chatRoom.participantTwoId],
+        references: [user.id],
+        relationName: "participantTwo",
+    }),
+    messages: many(chatMessage),
+}));
+
+export const chatMessageRelations = relations(chatMessage, ({ one }) => ({
+    room: one(chatRoom, {
+        fields: [chatMessage.roomId],
+        references: [chatRoom.id],
+    }),
+    sender: one(user, {
+        fields: [chatMessage.senderId],
         references: [user.id],
     }),
 }));

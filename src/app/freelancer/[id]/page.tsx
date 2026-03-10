@@ -1,4 +1,9 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +25,7 @@ import {
     Award,
     Globe,
     ExternalLink,
+    Loader2
 } from "lucide-react";
 
 const freelancer = {
@@ -102,7 +108,34 @@ const portfolio = [
     { title: "Logo Collection 2024", category: "Logo" },
 ];
 
-export default function FreelancerProfilePage() {
+export default function FreelancerProfilePage({ params }: { params: { id: string } }) {
+    const { data: session } = useSession();
+    const router = useRouter();
+    const [isConnecting, setIsConnecting] = useState(false);
+
+    const handleContact = async () => {
+        if (!session) {
+            router.push(`/login?callbackUrl=/freelancer/${params.id}`);
+            return;
+        }
+
+        setIsConnecting(true);
+        try {
+            const res = await fetch("/api/chat/rooms", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ targetUserId: params.id }),
+            });
+            const data = await res.json();
+            if (data.room) {
+                router.push(`/dashboard/chat?room=${data.room.id}`);
+            }
+        } catch (error) {
+            console.error("Failed to connect with freelancer:", error);
+        } finally {
+            setIsConnecting(false);
+        }
+    };
     return (
         <div className="min-h-screen py-8">
             <div className="container mx-auto px-4 md:px-6">
@@ -155,8 +188,16 @@ export default function FreelancerProfilePage() {
                                         </span>
                                     </div>
                                 </div>
-                                <Button className="gradient-bg text-white border-0 gap-2 hover:opacity-90">
-                                    <MessageSquare className="h-4 w-4" />
+                                <Button
+                                    className="gradient-bg text-white border-0 gap-2 hover:opacity-90"
+                                    onClick={handleContact}
+                                    disabled={isConnecting}
+                                >
+                                    {isConnecting ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <MessageSquare className="h-4 w-4" />
+                                    )}
                                     Hubungi
                                 </Button>
                             </div>

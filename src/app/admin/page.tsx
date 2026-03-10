@@ -13,9 +13,12 @@ import {
     ArrowUpRight,
     TrendingUp,
     ShieldAlert,
-    Loader2
+    Loader2,
+    MessageSquare,
+    Activity,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function AdminDashboardPage() {
     const [data, setData] = useState<any>(null);
@@ -60,11 +63,11 @@ export default function AdminDashboardPage() {
             <div>
                 <h1 className="text-3xl font-bold tracking-tight">Platform Overview</h1>
                 <p className="text-muted-foreground mt-2">
-                    Monitoring and managing the SkillBridge AI ecosystem.
+                    Monitoring dan manajemen ekosistem SkillBridge AI.
                 </p>
             </div>
 
-            {/* Quick Stats */}
+            {/* Quick Stats - Row 1 */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatsCard
                     icon={Users}
@@ -73,18 +76,42 @@ export default function AdminDashboardPage() {
                 />
                 <StatsCard
                     icon={Briefcase}
-                    title="Active Services"
+                    title="Total Jasa"
                     value={data?.stats?.services?.toString() || "0"}
                 />
                 <StatsCard
                     icon={ShoppingBag}
-                    title="Total Orders"
+                    title="Total Pesanan"
                     value={data?.stats?.orders?.toString() || "0"}
                 />
                 <StatsCard
                     icon={Wallet}
-                    title="Total Revenue"
+                    title="Total Pendapatan"
                     value={formatCurrency(data?.stats?.revenue || 0)}
+                />
+            </div>
+
+            {/* Quick Stats - Row 2 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatsCard
+                    icon={MessageSquare}
+                    title="Total Chat Room"
+                    value={data?.stats?.chatRooms?.toString() || "0"}
+                />
+                <StatsCard
+                    icon={Activity}
+                    title="Total Pesan"
+                    value={data?.stats?.chatMessages?.toString() || "0"}
+                />
+                <StatsCard
+                    icon={Briefcase}
+                    title="Jasa Aktif"
+                    value={data?.stats?.activeServices?.toString() || "0"}
+                />
+                <StatsCard
+                    icon={ShieldAlert}
+                    title="Jasa Nonaktif"
+                    value={data?.stats?.inactiveServices?.toString() || "0"}
                 />
             </div>
 
@@ -92,15 +119,17 @@ export default function AdminDashboardPage() {
                 {/* Recent Transactions */}
                 <Card className="lg:col-span-2 border-border/50 shadow-xl shadow-primary/5 bg-card/50 backdrop-blur-sm">
                     <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle className="text-xl">Latest Platform Activity</CardTitle>
-                        <Button variant="outline" size="sm" className="gap-1 border-primary/20 text-primary hover:bg-primary/5">
-                            View Reports <ArrowUpRight className="h-3.5 w-3.5" />
-                        </Button>
+                        <CardTitle className="text-xl">Aktivitas Platform Terbaru</CardTitle>
+                        <Link href="/admin/orders">
+                            <Button variant="outline" size="sm" className="gap-1 border-primary/20 text-primary hover:bg-primary/5">
+                                Lihat Semua <ArrowUpRight className="h-3.5 w-3.5" />
+                            </Button>
+                        </Link>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-6">
                             {data?.latestOrders?.length === 0 ? (
-                                <p className="text-center text-muted-foreground py-12">No recent activity detected.</p>
+                                <p className="text-center text-muted-foreground py-12">Belum ada aktivitas terbaru.</p>
                             ) : (
                                 data?.latestOrders?.map((order: any) => (
                                     <div key={order.id} className="flex items-center gap-4 group">
@@ -114,7 +143,7 @@ export default function AdminDashboardPage() {
                                                 {order.service?.title || "Unknown Service"}
                                             </p>
                                             <p className="text-xs text-muted-foreground">
-                                                <span className="text-primary font-medium">@{order.customer?.name}</span> ordered from <span className="font-medium">@{order.freelancer?.name}</span>
+                                                <span className="text-primary font-medium">@{order.customer?.name}</span> memesan dari <span className="font-medium">@{order.freelancer?.name}</span>
                                             </p>
                                         </div>
                                         <div className="text-right">
@@ -136,12 +165,17 @@ export default function AdminDashboardPage() {
                         <CardHeader className="pb-2">
                             <CardTitle className="text-md flex items-center gap-2">
                                 <TrendingUp className="h-5 w-5 text-primary" />
-                                Platform Growth
+                                Pertumbuhan Platform
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-3xl font-black">+12.5%</p>
-                            <p className="text-xs text-muted-foreground mt-1 text-primary italic font-medium">New users this week</p>
+                            <p className="text-3xl font-black">
+                                {data?.stats?.growthPercentage > 0 ? "+" : ""}
+                                {data?.stats?.growthPercentage || "0"}%
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1 text-primary italic font-medium">
+                                {data?.stats?.newUsersThisWeek || 0} user baru minggu ini
+                            </p>
                         </CardContent>
                     </Card>
 
@@ -149,16 +183,29 @@ export default function AdminDashboardPage() {
                         <CardHeader className="pb-2">
                             <CardTitle className="text-md flex items-center gap-2 text-yellow-500">
                                 <ShieldAlert className="h-5 w-5" />
-                                Action Required
+                                Perlu Tindakan
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
-                            <div className="p-3 bg-yellow-500/10 rounded-lg text-xs border border-yellow-500/20 text-yellow-700">
-                                4 services pending manual review.
-                            </div>
-                            <div className="p-3 bg-blue-500/10 rounded-lg text-xs border border-blue-500/20 text-blue-700">
-                                2 withdrawal requests waiting approval.
-                            </div>
+                            {(data?.stats?.inactiveServices || 0) > 0 && (
+                                <Link href="/admin/services">
+                                    <div className="p-3 bg-yellow-500/10 rounded-lg text-xs border border-yellow-500/20 text-yellow-700 hover:bg-yellow-500/15 transition-colors cursor-pointer">
+                                        {data?.stats?.inactiveServices} jasa nonaktif perlu ditinjau.
+                                    </div>
+                                </Link>
+                            )}
+                            {(data?.stats?.pendingOrders || 0) > 0 && (
+                                <Link href="/admin/orders">
+                                    <div className="p-3 bg-blue-500/10 rounded-lg text-xs border border-blue-500/20 text-blue-700 hover:bg-blue-500/15 transition-colors cursor-pointer mt-2">
+                                        {data?.stats?.pendingOrders} pesanan menunggu proses.
+                                    </div>
+                                </Link>
+                            )}
+                            {(data?.stats?.inactiveServices || 0) === 0 && (data?.stats?.pendingOrders || 0) === 0 && (
+                                <div className="p-3 bg-green-500/10 rounded-lg text-xs border border-green-500/20 text-green-700">
+                                    ✓ Tidak ada tindakan yang diperlukan saat ini.
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
                 </div>

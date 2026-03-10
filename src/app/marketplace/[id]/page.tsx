@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
 import { useState, useEffect, use } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,8 +30,35 @@ import {
 
 export default function ServiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
+    const { data: session } = useSession();
+    const router = useRouter();
     const [service, setService] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isConnectingChat, setIsConnectingChat] = useState(false);
+
+    const handleChatProvider = async () => {
+        if (!service?.provider?.id) return;
+        if (!session) {
+            router.push(`/login?callbackUrl=/marketplace/${id}`);
+            return;
+        }
+        setIsConnectingChat(true);
+        try {
+            const res = await fetch("/api/chat/rooms", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ targetUserId: service.provider.id }),
+            });
+            const data = await res.json();
+            if (data.room) {
+                router.push(`/dashboard/chat?room=${data.room.id}`);
+            }
+        } catch (error) {
+            console.error("Failed to connect chat:", error);
+        } finally {
+            setIsConnectingChat(false);
+        }
+    };
 
     useEffect(() => {
         const fetchService = async () => {
@@ -180,8 +209,18 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
                                                 </Link>
                                                 <p className="text-sm text-muted-foreground">{service.provider?.freelancerProfile?.title || "Freelancer"}</p>
                                             </div>
-                                            <Button variant="outline" size="sm" className="gap-2">
-                                                <MessageSquare className="h-3.5 w-3.5" />
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="gap-2"
+                                                onClick={handleChatProvider}
+                                                disabled={isConnectingChat}
+                                            >
+                                                {isConnectingChat ? (
+                                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                ) : (
+                                                    <MessageSquare className="h-3.5 w-3.5" />
+                                                )}
                                                 Chat
                                             </Button>
                                         </div>

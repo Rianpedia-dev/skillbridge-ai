@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +35,8 @@ import {
 import { useSession } from "@/lib/auth-client";
 
 export default function OrdersPage() {
-    const { data: session } = useSession();
+    const { data: session, isPending } = useSession();
+    const router = useRouter();
     const isFreelancer = session?.user?.role === "freelancer";
 
     const [filter, setFilter] = useState("all");
@@ -195,12 +197,17 @@ export default function OrdersPage() {
         }).format(amount);
     };
 
-    if (isLoading) {
+    if (isPending || isLoading) {
         return (
             <div className="flex h-[50vh] items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         );
+    }
+
+    if (!session) {
+        router.push("/login");
+        return null;
     }
 
     return (
@@ -282,8 +289,8 @@ export default function OrdersPage() {
                                     >
                                         <Star
                                             className={`h-7 w-7 transition-colors ${star <= reviewRating
-                                                    ? "fill-yellow-400 text-yellow-400"
-                                                    : "text-muted-foreground/30"
+                                                ? "fill-yellow-400 text-yellow-400"
+                                                : "text-muted-foreground/30"
                                                 }`}
                                         />
                                     </button>

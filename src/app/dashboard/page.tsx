@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { StatsCard } from "@/components/stats-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,8 +21,19 @@ import { useSession } from "@/lib/auth-client";
 
 export default function DashboardPage() {
     const { data: session, isPending } = useSession();
+    const router = useRouter();
+    const pathname = usePathname();
     const [orders, setOrders] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    const isAdmin = session?.user?.role?.toLowerCase() === "admin";
+
+    // Redirect admin to specialized admin dashboard if they land here
+    useEffect(() => {
+        if (isAdmin) {
+            router.replace("/admin");
+        }
+    }, [isAdmin, router]);
 
     useEffect(() => {
         async function fetchOrders() {
@@ -49,7 +61,13 @@ export default function DashboardPage() {
         );
     }
 
+    if (!session) {
+        router.push("/login");
+        return null;
+    }
+
     const userName = session?.user?.name || "User";
+
 
     // Stats calculations
     const totalOrders = orders.length;

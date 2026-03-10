@@ -55,8 +55,8 @@ export function Navbar() {
             <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 group shrink-0">
-                    <div className="relative flex h-8 w-8 items-center justify-center rounded-lg gradient-bg transition-transform group-hover:scale-105">
-                        <Sparkles className="h-4 w-4 text-white" />
+                    <div className="relative flex h-8 w-8 items-center justify-center transition-transform group-hover:scale-105">
+                        <img src="/lg.png" alt="SkillBridge Logo" className="h-full w-full object-contain" />
                     </div>
                     <span className="text-lg font-bold gradient-text hidden sm:inline-block">
                         SkillBridge
@@ -94,10 +94,10 @@ export function Navbar() {
                 <div className="hidden md:flex items-center gap-2 shrink-0">
                     {mounted && !isPending && session ? (
                         <>
-                            <Link href="/dashboard">
+                            <Link href={session.user.role?.toLowerCase() === "admin" ? "/admin" : "/dashboard"}>
                                 <Button variant="ghost" size="sm" className="gap-2">
                                     <LayoutDashboard className="h-4 w-4" />
-                                    Dashboard
+                                    {session.user.role?.toLowerCase() === "admin" ? "Admin Panel" : "Dashboard"}
                                 </Button>
                             </Link>
                             <Button variant="outline" size="sm" className="gap-2" onClick={handleLogout}>
@@ -138,8 +138,8 @@ export function Navbar() {
                         </SheetTrigger>
                         <SheetContent side="right" className="w-72">
                             <SheetTitle className="flex items-center gap-2 mb-6">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-bg">
-                                    <Sparkles className="h-4 w-4 text-white" />
+                                <div className="flex h-8 w-8 items-center justify-center">
+                                    <img src="/lg.png" alt="SkillBridge Logo" className="h-full w-full object-contain" />
                                 </div>
                                 <span className="font-bold gradient-text">SkillBridge AI</span>
                             </SheetTitle>
@@ -159,10 +159,10 @@ export function Navbar() {
                             <div className="mt-6 flex flex-col gap-2">
                                 {mounted && !isPending && session ? (
                                     <>
-                                        <Link href="/dashboard" onClick={() => setIsOpen(false)}>
+                                        <Link href={session.user.role?.toLowerCase() === "admin" ? "/admin" : "/dashboard"} onClick={() => setIsOpen(false)}>
                                             <Button variant="outline" className="w-full gap-2 justify-start">
                                                 <LayoutDashboard className="h-4 w-4" />
-                                                Dashboard
+                                                {session.user.role?.toLowerCase() === "admin" ? "Admin Panel" : "Dashboard"}
                                             </Button>
                                         </Link>
                                         <Button variant="ghost" className="w-full gap-2 justify-start text-destructive hover:text-destructive hover:bg-destructive/10" onClick={handleLogout}>

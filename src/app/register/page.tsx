@@ -79,8 +79,8 @@ export default function RegisterPage() {
             <Card className="w-full max-w-md border-border/50">
                 <CardHeader className="text-center pb-2">
                     <Link href="/" className="flex items-center justify-center gap-2 mb-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-bg">
-                            <Sparkles className="h-5 w-5 text-white" />
+                        <div className="flex h-10 w-10 items-center justify-center">
+                            <img src="/lg.png" alt="SkillBridge Logo" className="h-full w-full object-contain" />
                         </div>
                     </Link>
                     <CardTitle className="text-2xl font-bold">Buat Akun Baru</CardTitle>

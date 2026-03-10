@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import imageCompression from "browser-image-compression";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,7 +60,8 @@ const emptyForm: ServiceFormData = {
 };
 
 export default function ServicesPage() {
-    const { data: session } = useSession();
+    const { data: session, isPending } = useSession();
+    const router = useRouter();
     const [services, setServices] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [categories, setCategories] = useState<any[]>([]);
@@ -91,7 +93,10 @@ export default function ServicesPage() {
     }, [session]);
 
     const fetchServices = async () => {
-        if (!session?.user?.id) return;
+        if (!session?.user?.id) {
+            setIsLoading(false);
+            return;
+        }
         try {
             // Fetch only my services using providerId filter
             const res = await fetch(`/api/services?providerId=${session.user.id}`);
@@ -471,12 +476,17 @@ export default function ServicesPage() {
         </div>
     );
 
-    if (isLoading) {
+    if (isPending || isLoading) {
         return (
             <div className="flex h-[50vh] items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         );
+    }
+
+    if (!session) {
+        router.push("/login");
+        return null;
     }
 
     const activeCount = services.filter((s) => s.isActive).length;

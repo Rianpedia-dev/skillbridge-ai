@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,13 +20,15 @@ import {
     Globe,
     Save,
     Camera,
-    Loader2
+    Loader2,
+    Shield
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import imageCompression from "browser-image-compression";
 
 export default function ProfilePage() {
     const { data: session, isPending } = useSession();
+    const router = useRouter();
 
     // States
     const [isLoading, setIsLoading] = useState(true);
@@ -62,8 +66,10 @@ export default function ProfilePage() {
             } else {
                 setIsLoading(false);
             }
+        } else if (!isPending && !session) {
+            setIsLoading(false);
         }
-    }, [session]);
+    }, [session, isPending]);
 
     const fetchFreelancerProfile = async () => {
         try {
@@ -78,7 +84,7 @@ export default function ProfilePage() {
                         setWebsite(data.profile.portfolioUrls[0]);
                     }
                     setSkills(data.profile.skills ? data.profile.skills.join(", ") : "");
-                    // Basic user data isn"t in profile API right now, usually we merge it.
+                    // Basic user data isn't in profile API right now, usually we merge it.
                 }
             }
         } catch (error) {
@@ -197,6 +203,11 @@ export default function ProfilePage() {
         );
     }
 
+    if (!session) {
+        router.push("/login");
+        return null;
+    }
+
     const initial = userName ? userName.substring(0, 2).toUpperCase() : "U";
 
     return (
@@ -245,6 +256,17 @@ export default function ProfilePage() {
                             <span className="h-2 w-2 rounded-full bg-green-500 mr-1.5" />
                             Terverifikasi
                         </Badge>
+
+                        {session?.user?.role?.toLowerCase() === "admin" && (
+                            <div className="mt-4">
+                                <Link href="/admin">
+                                    <Button variant="outline" size="sm" className="w-full gap-2 border-primary/20 text-primary hover:bg-primary/5">
+                                        <Shield className="h-4 w-4" />
+                                        Buka Admin Panel
+                                    </Button>
+                                </Link>
+                            </div>
+                        )}
 
                         <Separator className="my-4" />
 

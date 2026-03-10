@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,7 +27,9 @@ import {
   Rocket,
   TrendingUp,
   Globe,
+  ImageIcon,
 } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const categories = [
   { name: "Design", icon: Palette, count: 234, gradient: "linear-gradient(135deg, #7c3aed, #a78bfa)" },
@@ -130,14 +135,53 @@ const stats = [
 ];
 
 export default function HomePage() {
+  const [headerImages, setHeaderImages] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const res = await fetch("/api/admin/settings");
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.settings && Array.isArray(data.settings)) {
+            const images = data.settings.filter((s: any) => s.key.startsWith("header_image_"));
+            setHeaderImages(images);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch site settings:", err);
+      }
+    }
+    fetchSettings();
+  }, []);
+
   return (
     <div className="flex flex-col">
       {/* Hero Section with Search */}
       <section className="relative overflow-hidden">
-        {/* Background effects */}
+        {/* Background effects / Dynamic Header Images */}
         <div className="absolute inset-0 -z-10">
-          <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-accent/10 blur-3xl" />
+          {headerImages.length > 0 ? (
+            <div className="relative w-full h-full overflow-hidden">
+              {headerImages.map((img, idx) => (
+                <div
+                  key={img.id}
+                  className={cn(
+                    "absolute inset-0 transition-opacity duration-1000",
+                    idx === 0 ? "opacity-20" : "opacity-0"
+                  )}
+                >
+                  <img src={img.value} alt="Header" className="w-full h-full object-cover" />
+                </div>
+              ))}
+              <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/80 to-background" />
+            </div>
+          ) : (
+            <>
+              <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
+              <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-accent/10 blur-3xl" />
+            </>
+          )}
         </div>
 
         <div className="container mx-auto px-4 md:px-6 py-12 md:py-24">

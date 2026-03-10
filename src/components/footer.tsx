@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Sparkles, Github, Twitter, Instagram, Mail, ShieldCheck, Headphones, CreditCard } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
@@ -34,6 +37,13 @@ const trustBadges = [
 ];
 
 export function Footer() {
+    const pathname = usePathname();
+
+    // Hide footer on dashboard and admin pages
+    if (pathname && (pathname.startsWith('/dashboard') || pathname.startsWith('/admin'))) {
+        return null;
+    }
+
     return (
         <footer className="border-t bg-card">
             {/* Trust Badges */}
@@ -57,8 +67,8 @@ export function Footer() {
                     {/* Brand */}
                     <div className="col-span-2 md:col-span-1">
                         <Link href="/" className="flex items-center gap-2 mb-3">
-                            <div className="flex h-7 w-7 items-center justify-center rounded-lg gradient-bg">
-                                <Sparkles className="h-3.5 w-3.5 text-white" />
+                            <div className="flex h-7 w-7 items-center justify-center">
+                                <img src="/lg.png" alt="SkillBridge Logo" className="h-full w-full object-contain" />
                             </div>
                             <span className="text-base font-bold gradient-text">SkillBridge</span>
                             <span className="text-base font-bold">AI</span>
