@@ -111,11 +111,14 @@ export function Footer() {
 
                 <Separator className="my-6" />
 
-                <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground text-center md:text-left">
                     <p>© 2026 SkillBridge AI. All rights reserved.</p>
-                    <p>
-                        Dibuat dengan ❤️ di Indonesia
-                    </p>
+                    <div className="flex flex-col items-center md:items-end gap-1">
+                        <p>Dibuat dengan ❤️ di Indonesia</p>
+                        <p className="font-medium opacity-80">
+                            Designed & Developed by <span className="gradient-text font-bold">Jemi Arian</span>
+                        </p>
+                    </div>
                 </div>
             </div>
         </footer>

@@ -25,15 +25,7 @@ import {
     Sparkles,
 } from "lucide-react";
 
-const categories = [
-    { value: "all", label: "Semua", icon: SlidersHorizontal },
-    { value: "design", label: "Design", icon: Palette },
-    { value: "programming", label: "Programming", icon: Code },
-    { value: "tutor", label: "Tutor", icon: GraduationCap },
-    { value: "home-service", label: "Home Service", icon: Wrench },
-    { value: "event", label: "Fotografi", icon: Camera },
-    { value: "otomotif", label: "Otomotif", icon: Wrench },
-];
+
 
 export default function MarketplacePage() {
     const [searchQuery, setSearchQuery] = useState("");
@@ -76,13 +68,31 @@ export default function MarketplacePage() {
     return (
         <div className="min-h-screen">
             {/* Search Header Banner */}
-            <div className="promo-gradient py-6 md:py-10">
-                <div className="container mx-auto px-4 md:px-6">
+            <div
+                className="relative py-12 md:py-20 overflow-hidden border-b border-border/50"
+                style={{
+                    background: `
+                        radial-gradient(ellipse 80% 60% at 20% 40%, oklch(0.25 0.12 265 / 60%), transparent),
+                        radial-gradient(ellipse 60% 50% at 80% 30%, oklch(0.22 0.08 280 / 40%), transparent),
+                        radial-gradient(ellipse 50% 40% at 50% 80%, oklch(0.20 0.06 300 / 20%), transparent),
+                        oklch(0.13 0.03 265)
+                    `,
+                }}
+            >
+                {/* Subtle grid overlay */}
+                <div
+                    className="absolute inset-0 opacity-[0.03]"
+                    style={{
+                        backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+                        backgroundSize: '40px 40px',
+                    }}
+                />
+                <div className="container mx-auto px-4 md:px-6 relative z-10">
                     <div className="max-w-2xl mx-auto text-center mb-4 md:mb-6">
                         <h1 className="text-xl md:text-3xl font-bold text-white mb-1 md:mb-2">
                             Temukan Layanan Profesional
                         </h1>
-                        <p className="text-white/70 text-xs md:text-sm">
+                        <p className="text-white/50 text-xs md:text-sm">
                             Ribuan freelancer siap membantu kebutuhan Anda
                         </p>
                     </div>
@@ -115,23 +125,6 @@ export default function MarketplacePage() {
             <div className="container mx-auto px-3 md:px-6 py-4 md:py-6">
                 {/* Filter Bar */}
                 <div className="flex flex-col gap-3 mb-4 md:mb-6">
-                    {/* Category Chips - horizontal scroll */}
-                    <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-3 px-3 md:mx-0 md:px-0">
-                        {categories.map((cat) => (
-                            <Badge
-                                key={cat.value}
-                                variant={selectedCategory === cat.value ? "default" : "secondary"}
-                                className={`cursor-pointer transition-all whitespace-nowrap shrink-0 text-xs md:text-sm py-1.5 px-3 ${selectedCategory === cat.value
-                                    ? "gradient-bg text-white border-0"
-                                    : "hover:bg-primary/10"
-                                    }`}
-                                onClick={() => setSelectedCategory(cat.value)}
-                            >
-                                <cat.icon className="h-3 w-3 md:h-3.5 md:w-3.5 mr-1" />
-                                {cat.label}
-                            </Badge>
-                        ))}
-                    </div>
 
                     {/* Sort + Count */}
                     <div className="flex items-center justify-between">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,20 +23,78 @@ import {
     Info,
     BarChart3,
     ArrowRight,
+    AlertCircle,
 } from "lucide-react";
 
-export default function PriceEstimatorPage() {
-    const [isEstimating, setIsEstimating] = useState(false);
-    const [showResult, setShowResult] = useState(false);
+interface PriceEstimate {
+    minPrice: number;
+    maxPrice: number;
+    currency: string;
+    breakdown: { item: string; estimate: string }[];
+    estimatedDuration: string;
+    notes: string;
+}
 
-    const handleEstimate = () => {
+export default function PriceEstimatorPage() {
+    const router = useRouter();
+    const [description, setDescription] = useState("");
+    const [category, setCategory] = useState("");
+    const [complexity, setComplexity] = useState("");
+    const [deadline, setDeadline] = useState("");
+    const [isEstimating, setIsEstimating] = useState(false);
+    const [estimate, setEstimate] = useState<PriceEstimate | null>(null);
+    const [showResult, setShowResult] = useState(false);
+    const [error, setError] = useState("");
+
+    const formatPrice = (price: number) => {
+        return new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+        }).format(price);
+    };
+
+    const handleEstimate = async () => {
+        if (!description.trim()) {
+            setError("Deskripsi proyek wajib diisi.");
+            return;
+        }
+
+        setError("");
         setIsEstimating(true);
         setShowResult(false);
-        setTimeout(() => {
-            setIsEstimating(false);
+        setEstimate(null);
+
+        try {
+            let fullDescription = description;
+            if (complexity) fullDescription += ` | Kompleksitas: ${complexity}`;
+            if (deadline) fullDescription += ` | Deadline: ${deadline} hari`;
+
+            const response = await fetch("/api/ai/price-estimate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    description: fullDescription,
+                    category: category || undefined,
+                }),
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || "Gagal melakukan estimasi harga");
+            }
+
+            const data = await response.json();
+            setEstimate(data.estimate);
             setShowResult(true);
-        }, 2000);
+        } catch (err: any) {
+            setError(err.message || "Terjadi kesalahan. Silakan coba lagi.");
+        } finally {
+            setIsEstimating(false);
+        }
     };
+
+    const avgPrice = estimate ? Math.round((estimate.minPrice + estimate.maxPrice) / 2) : 0;
 
     return (
         <div className="min-h-screen py-8">
@@ -69,11 +128,13 @@ export default function PriceEstimatorPage() {
                                 <Textarea
                                     placeholder="Contoh: Membuat website company profile untuk bisnis kuliner dengan 5 halaman, fitur menu online, dan Google Maps..."
                                     className="min-h-40 resize-none"
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label>Kategori Layanan</Label>
-                                <Select>
+                                <Select value={category} onValueChange={(v) => setCategory(v ?? "")}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Pilih kategori" />
                                     </SelectTrigger>
@@ -89,7 +150,7 @@ export default function PriceEstimatorPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label>Tingkat Kompleksitas</Label>
-                                <Select>
+                                <Select value={complexity} onValueChange={(v) => setComplexity(v ?? "")}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Pilih kompleksitas" />
                                     </SelectTrigger>
@@ -103,7 +164,7 @@ export default function PriceEstimatorPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label>Deadline</Label>
-                                <Select>
+                                <Select value={deadline} onValueChange={(v) => setDeadline(v ?? "")}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Perkiraan waktu" />
                                     </SelectTrigger>
@@ -116,6 +177,14 @@ export default function PriceEstimatorPage() {
                                     </SelectContent>
                                 </Select>
                             </div>
+
+                            {error && (
+                                <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 p-3 rounded-lg">
+                                    <AlertCircle className="h-4 w-4 shrink-0" />
+                                    {error}
+                                </div>
+                            )}
+
                             <Button
                                 onClick={handleEstimate}
                                 disabled={isEstimating}
@@ -160,22 +229,27 @@ export default function PriceEstimatorPage() {
                                     </div>
                                     <h3 className="font-semibold text-lg mb-2">AI sedang menganalisis...</h3>
                                     <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                                        Membandingkan dengan data ribuan proyek serupa untuk memberikan estimasi akurat.
+                                        Membandingkan dengan data proyek serupa untuk memberikan estimasi akurat.
                                     </p>
                                 </CardContent>
                             </Card>
                         )}
 
-                        {showResult && (
+                        {showResult && estimate && (
                             <>
                                 {/* Main estimate */}
                                 <Card className="border-border/50 overflow-hidden">
                                     <div className="gradient-bg p-6 text-white text-center">
                                         <p className="text-sm opacity-80 mb-1">Estimasi Harga Proyek</p>
                                         <h2 className="text-3xl md:text-4xl font-bold">
-                                            Rp1.500.000 — Rp3.000.000
+                                            {formatPrice(estimate.minPrice)} — {formatPrice(estimate.maxPrice)}
                                         </h2>
-                                        <p className="text-sm opacity-70 mt-2">Berdasarkan analisis 247 proyek serupa</p>
+                                        {estimate.estimatedDuration && (
+                                            <p className="text-sm opacity-70 mt-2 flex items-center justify-center gap-1">
+                                                <Clock className="h-3.5 w-3.5" />
+                                                Estimasi waktu: {estimate.estimatedDuration}
+                                            </p>
+                                        )}
                                     </div>
                                     <CardContent className="p-5 space-y-4">
                                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-3 text-center">
@@ -184,47 +258,55 @@ export default function PriceEstimatorPage() {
                                                     <TrendingDown className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
                                                     <span className="text-sm sm:text-xs font-medium">Minimum</span>
                                                 </div>
-                                                <p className="font-bold text-lg sm:text-sm">Rp1.500.000</p>
+                                                <p className="font-bold text-lg sm:text-sm">{formatPrice(estimate.minPrice)}</p>
                                             </div>
                                             <div className="bg-primary/5 p-3 rounded-lg sm:bg-transparent sm:p-0 ring-1 ring-primary/20 sm:ring-0">
                                                 <div className="flex items-center justify-center gap-1 text-primary mb-1">
                                                     <BarChart3 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
                                                     <span className="text-sm sm:text-xs font-medium">Rata-rata</span>
                                                 </div>
-                                                <p className="font-bold text-lg sm:text-sm">Rp2.200.000</p>
+                                                <p className="font-bold text-lg sm:text-sm">{formatPrice(avgPrice)}</p>
                                             </div>
                                             <div className="bg-muted/50 p-3 rounded-lg sm:bg-transparent sm:p-0">
                                                 <div className="flex items-center justify-center gap-1 text-orange-500 mb-1">
                                                     <TrendingUp className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
                                                     <span className="text-sm sm:text-xs font-medium">Maksimum</span>
                                                 </div>
-                                                <p className="font-bold text-lg sm:text-sm">Rp3.000.000</p>
+                                                <p className="font-bold text-lg sm:text-sm">{formatPrice(estimate.maxPrice)}</p>
                                             </div>
                                         </div>
                                     </CardContent>
                                 </Card>
 
                                 {/* Breakdown */}
-                                <Card className="border-border/50">
-                                    <CardContent className="p-5 space-y-3">
-                                        <h3 className="font-semibold text-sm flex items-center gap-2">
-                                            <Info className="h-4 w-4 text-primary" />
-                                            Breakdown Estimasi
-                                        </h3>
-                                        {[
-                                            { label: "Desain & Wireframe", range: "Rp300.000 — Rp600.000" },
-                                            { label: "Frontend Development", range: "Rp500.000 — Rp1.000.000" },
-                                            { label: "Backend & Integrasi", range: "Rp400.000 — Rp800.000" },
-                                            { label: "Testing & Deployment", range: "Rp200.000 — Rp400.000" },
-                                            { label: "Revisi & Maintenance", range: "Rp100.000 — Rp200.000" },
-                                        ].map((item) => (
-                                            <div key={item.label} className="flex items-center justify-between text-sm">
-                                                <span className="text-muted-foreground">{item.label}</span>
-                                                <span className="font-medium">{item.range}</span>
-                                            </div>
-                                        ))}
-                                    </CardContent>
-                                </Card>
+                                {estimate.breakdown && estimate.breakdown.length > 0 && (
+                                    <Card className="border-border/50">
+                                        <CardContent className="p-5 space-y-3">
+                                            <h3 className="font-semibold text-sm flex items-center gap-2">
+                                                <Info className="h-4 w-4 text-primary" />
+                                                Breakdown Estimasi
+                                            </h3>
+                                            {estimate.breakdown.map((item, idx) => (
+                                                <div key={idx} className="flex items-center justify-between text-sm">
+                                                    <span className="text-muted-foreground">{item.item}</span>
+                                                    <span className="font-medium">{item.estimate}</span>
+                                                </div>
+                                            ))}
+                                        </CardContent>
+                                    </Card>
+                                )}
+
+                                {/* Notes */}
+                                {estimate.notes && (
+                                    <Card className="border-border/50 bg-muted/30">
+                                        <CardContent className="p-5">
+                                            <p className="text-sm text-muted-foreground flex items-start gap-2">
+                                                <Info className="h-4 w-4 shrink-0 mt-0.5 text-primary" />
+                                                {estimate.notes}
+                                            </p>
+                                        </CardContent>
+                                    </Card>
+                                )}
 
                                 {/* CTA */}
                                 <Card className="border-border/50 bg-primary/5">
@@ -238,7 +320,11 @@ export default function PriceEstimatorPage() {
                                                 <p className="text-xs text-muted-foreground mb-3">
                                                     Gunakan AI Smart Matching untuk menemukan freelancer terbaik sesuai budget Anda.
                                                 </p>
-                                                <Button size="sm" className="gap-2 gradient-bg text-white border-0 hover:opacity-90">
+                                                <Button
+                                                    size="sm"
+                                                    className="gap-2 gradient-bg text-white border-0 hover:opacity-90"
+                                                    onClick={() => router.push("/ai-matching")}
+                                                >
                                                     Cari Freelancer
                                                     <ArrowRight className="h-3.5 w-3.5" />
                                                 </Button>

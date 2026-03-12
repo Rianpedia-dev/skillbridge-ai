@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { service, serviceCategory, user, freelancerProfile } from "@/lib/db/schema";
-import { eq, ilike, and, desc, asc } from "drizzle-orm";
+import { eq, ilike, and, desc, asc, or } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
@@ -39,7 +39,12 @@ export async function GET(request: NextRequest) {
         }
 
         if (search) {
-            conditions.push(ilike(service.title, `%${search}%`));
+            conditions.push(
+                or(
+                    ilike(service.title, `%${search}%`),
+                    ilike(service.description, `%${search}%`)
+                )
+            );
         }
 
         // Sort mapping

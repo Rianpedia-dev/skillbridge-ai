@@ -7,8 +7,8 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 import {
     Menu,
     Sparkles,
-    Search,
     Calculator,
+    Store,
     LayoutDashboard,
     LogIn,
     UserPlus,
@@ -18,7 +18,7 @@ import { useSession, signOut } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
 const navLinks = [
-    { href: "/marketplace", label: "Marketplace", icon: Search },
+    { href: "/marketplace", label: "Marketplace", icon: Store },
     { href: "/ai-matching", label: "AI Matching", icon: Sparkles },
     { href: "/price-estimator", label: "Estimasi Harga", icon: Calculator },
 ];
@@ -58,10 +58,10 @@ export function Navbar() {
                     <div className="relative flex h-8 w-8 items-center justify-center transition-transform group-hover:scale-105">
                         <img src="/lg.png" alt="SkillBridge Logo" className="h-full w-full object-contain" />
                     </div>
-                    <span className="text-lg font-bold gradient-text hidden sm:inline-block">
+                    <span className="text-lg font-bold gradient-text">
                         SkillBridge
                     </span>
-                    <span className="text-lg font-bold text-foreground hidden sm:inline-block">
+                    <span className="text-lg font-bold text-foreground">
                         AI
                     </span>
                 </Link>
@@ -80,15 +80,7 @@ export function Navbar() {
                     ))}
                 </nav>
 
-                {/* Desktop Search Bar */}
-                <div className="hidden lg:flex flex-1 max-w-sm mx-4">
-                    <Link href="/marketplace" className="relative w-full group">
-                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/60 hover:bg-secondary text-sm text-muted-foreground transition-colors cursor-pointer">
-                            <Search className="h-4 w-4 shrink-0" />
-                            <span className="truncate">Cari layanan...</span>
-                        </div>
-                    </Link>
-                </div>
+
 
                 {/* Auth Buttons */}
                 <div className="hidden md:flex items-center gap-2 shrink-0">
@@ -125,11 +117,6 @@ export function Navbar() {
 
                 {/* Mobile: Search + Hamburger */}
                 <div className="flex md:hidden items-center gap-2">
-                    <Link href="/marketplace">
-                        <Button variant="ghost" size="icon" className="h-9 w-9">
-                            <Search className="h-5 w-5" />
-                        </Button>
-                    </Link>
                     <Sheet open={isOpen} onOpenChange={setIsOpen}>
                         <SheetTrigger
                             render={<Button variant="ghost" size="icon" className="h-9 w-9" />}

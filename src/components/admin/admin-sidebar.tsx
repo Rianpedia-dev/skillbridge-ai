@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import {
-    LayoutDashboard,
     Users,
     ShoppingBag,
     Briefcase,
@@ -12,7 +12,7 @@ import {
     Settings,
     ChevronLeft,
     LogOut,
-    ShieldCheck,
+    Home,
     Menu
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,11 +20,6 @@ import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 
 const menuItems = [
-    {
-        title: "User Dashboard",
-        href: "/dashboard",
-        icon: LayoutDashboard,
-    },
     {
         title: "Overview",
         icon: PieChart,
@@ -54,6 +49,7 @@ const menuItems = [
 
 export function AdminSidebar() {
     const pathname = usePathname();
+    const router = useRouter();
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
 
@@ -102,15 +98,19 @@ export function AdminSidebar() {
             <div className="mt-auto space-y-2">
                 <hr className="border-border/50 mb-4" />
 
-                <Link href="/dashboard" onClick={() => isMobile && setIsMobileOpen(false)}>
-                    <div className="flex items-center gap-3 rounded-xl px-3 py-3 text-muted-foreground hover:bg-secondary hover:text-foreground transition-all cursor-pointer">
-                        <ChevronLeft className="h-5 w-5 shrink-0" />
-                        {(!isCollapsed || isMobile) && <span className="font-medium text-sm">Kembali ke User App</span>}
-                    </div>
-                </Link>
-
                 <Button
                     variant="ghost"
+                    onClick={async () => {
+                        if (isMobile) setIsMobileOpen(false);
+                        await authClient.signOut({
+                            fetchOptions: {
+                                onSuccess: () => {
+                                    router.push("/login");
+                                    router.refresh();
+                                },
+                            },
+                        });
+                    }}
                     className="w-full justify-start gap-3 rounded-xl px-3 py-6 text-red-500 hover:bg-red-500/10 hover:text-red-600 transition-all font-medium"
                 >
                     <LogOut className="h-5 w-5 shrink-0" />

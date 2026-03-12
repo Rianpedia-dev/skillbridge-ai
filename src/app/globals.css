@@ -165,6 +165,20 @@
   }
 }
 
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 @keyframes pulse-glow {
 
   0%,
@@ -193,6 +207,12 @@
 
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-gradient {
+  background: linear-gradient(-45deg, oklch(0.15 0.02 265), oklch(0.55 0.25 25), oklch(0.98 0 0), oklch(0.4 0.2 25));
+  background-size: 400% 400%;
+  animation: gradient-flow 15s ease infinite;
 }
 
 .glass {

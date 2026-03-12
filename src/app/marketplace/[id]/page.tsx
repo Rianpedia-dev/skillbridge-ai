@@ -132,23 +132,40 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
                     {/* Left: Service info */}
                     <div className="lg:col-span-2 space-y-6">
                         {/* Banner */}
-                        <div className="relative aspect-[16/9] md:h-80 rounded-xl md:rounded-2xl overflow-hidden gradient-bg">
+                        <div 
+                            className="relative aspect-[16/9] md:h-80 rounded-xl md:rounded-2xl overflow-hidden border border-border/50 shadow-sm"
+                            style={{
+                                background: `
+                                    radial-gradient(ellipse 80% 60% at 20% 40%, oklch(0.25 0.12 265 / 60%), transparent),
+                                    radial-gradient(ellipse 60% 50% at 80% 30%, oklch(0.22 0.08 280 / 40%), transparent),
+                                    oklch(0.13 0.03 265)
+                                `,
+                            }}
+                        >
                             {service.image ? (
-                                <img src={service.image} alt={service.title} className="w-full h-full object-cover" />
+                                <img 
+                                    src={service.image} 
+                                    alt={service.title} 
+                                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                />
                             ) : (
                                 <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="text-6xl font-bold text-white/15 uppercase">{service.title.charAt(0)}</span>
+                                    <span className="text-6xl md:text-8xl font-bold text-white/5">{service.title.charAt(0)}</span>
                                 </div>
                             )}
-                            <div className="absolute top-4 right-4 flex gap-2">
-                                <Button size="icon" variant="secondary" className="h-9 w-9 rounded-full bg-background/80 backdrop-blur-sm">
+                            
+                            {/* Overlay for better readability of buttons/badge */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+
+                            <div className="absolute top-4 right-4 flex gap-2 z-10">
+                                <Button size="icon" variant="secondary" className="h-9 w-9 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors">
                                     <Heart className="h-4 w-4" />
                                 </Button>
-                                <Button size="icon" variant="secondary" className="h-9 w-9 rounded-full bg-background/80 backdrop-blur-sm">
+                                <Button size="icon" variant="secondary" className="h-9 w-9 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors">
                                     <Share2 className="h-4 w-4" />
                                 </Button>
                             </div>
-                            <Badge className="absolute top-4 left-4 bg-background/80 backdrop-blur-sm">
+                            <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground border-0 shadow-lg z-10">
                                 {service.category?.name || "Lainnya"}
                             </Badge>
                         </div>

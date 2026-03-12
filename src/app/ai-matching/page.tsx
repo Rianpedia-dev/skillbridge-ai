@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,70 +16,80 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { StarRating } from "@/components/ui/star-rating";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
     Sparkles,
-    Search,
     MapPin,
     Star,
     CheckCircle,
-    Clock,
     ArrowRight,
     Zap,
     MessageSquare,
+    AlertCircle,
 } from "lucide-react";
 
-const mockResults = [
-    {
-        name: "Rina Anggraini",
-        initials: "RA",
-        title: "Senior Graphic Designer",
-        location: "Jakarta",
-        rating: 4.9,
-        reviews: 128,
-        projects: 342,
-        matchScore: 98,
-        skills: ["Logo Design", "Brand Identity", "UI/UX"],
-        price: "Rp500.000",
-    },
-    {
-        name: "DevStudio ID",
-        initials: "DS",
-        title: "Full-Stack Developer",
-        location: "Bandung",
-        rating: 4.8,
-        reviews: 95,
-        projects: 215,
-        matchScore: 92,
-        skills: ["Next.js", "React", "Node.js"],
-        price: "Rp2.000.000",
-    },
-    {
-        name: "PixelPerfect",
-        initials: "PP",
-        title: "UI/UX Designer",
-        location: "Surabaya",
-        rating: 4.9,
-        reviews: 78,
-        projects: 167,
-        matchScore: 87,
-        skills: ["Figma", "Mobile Design", "Prototyping"],
-        price: "Rp1.500.000",
-    },
-];
+interface Recommendation {
+    serviceId?: string;
+    freelancerName: string;
+    matchScore: number;
+    reason: string;
+    estimatedPrice: string;
+}
 
 export default function AiMatchingPage() {
+    const router = useRouter();
+    const [description, setDescription] = useState("");
+    const [category, setCategory] = useState("");
+    const [budget, setBudget] = useState("");
     const [isSearching, setIsSearching] = useState(false);
+    const [results, setResults] = useState<Recommendation[]>([]);
     const [showResults, setShowResults] = useState(false);
+    const [error, setError] = useState("");
 
-    const handleSearch = () => {
+    const handleSearch = async () => {
+        if (!description.trim()) {
+            setError("Deskripsi kebutuhan proyek wajib diisi.");
+            return;
+        }
+
+        setError("");
         setIsSearching(true);
         setShowResults(false);
-        setTimeout(() => {
-            setIsSearching(false);
+        setResults([]);
+
+        try {
+            let query = description;
+            if (category) query += ` | Kategori: ${category}`;
+            if (budget) query += ` | Budget: Rp${budget}`;
+
+            const response = await fetch("/api/ai/matching", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query }),
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || "Gagal melakukan AI matching");
+            }
+
+            const data = await response.json();
+            setResults(data.recommendations || []);
             setShowResults(true);
-        }, 2000);
+        } catch (err: any) {
+            setError(err.message || "Terjadi kesalahan. Silakan coba lagi.");
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
+    const getInitials = (name: string) => {
+        return name
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
     };
 
     return (
@@ -112,12 +123,14 @@ export default function AiMatchingPage() {
                             <Textarea
                                 placeholder="Contoh: Saya membutuhkan desainer untuk membuat logo dan brand identity untuk startup fintech..."
                                 className="min-h-32 resize-none"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
                             />
                         </div>
                         <div className="grid sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label>Kategori</Label>
-                                <Select>
+                                <Select value={category} onValueChange={(v) => setCategory(v ?? "")}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Pilih kategori" />
                                     </SelectTrigger>
@@ -133,9 +146,22 @@ export default function AiMatchingPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label>Budget (Rp)</Label>
-                                <Input type="text" placeholder="Contoh: 1.000.000" />
+                                <Input
+                                    type="text"
+                                    placeholder="Contoh: 1.000.000"
+                                    value={budget}
+                                    onChange={(e) => setBudget(e.target.value)}
+                                />
                             </div>
                         </div>
+
+                        {error && (
+                            <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 p-3 rounded-lg">
+                                <AlertCircle className="h-4 w-4 shrink-0" />
+                                {error}
+                            </div>
+                        )}
+
                         <Button
                             onClick={handleSearch}
                             disabled={isSearching}
@@ -165,7 +191,7 @@ export default function AiMatchingPage() {
                             </div>
                             <div>
                                 <p className="font-medium text-sm">AI sedang menganalisis...</p>
-                                <p className="text-xs text-muted-foreground">Mencocokkan kebutuhan dengan ribuan freelancer</p>
+                                <p className="text-xs text-muted-foreground">Mencocokkan kebutuhan dengan freelancer di database</p>
                             </div>
                         </div>
                         {[1, 2, 3].map((i) => (
@@ -194,15 +220,38 @@ export default function AiMatchingPage() {
                                 <Sparkles className="h-4 w-4 text-white" />
                             </div>
                             <div>
-                                <p className="font-medium text-sm">AI telah menemukan {mockResults.length} rekomendasi terbaik</p>
-                                <p className="text-xs text-muted-foreground">Diurutkan berdasarkan skor kecocokan</p>
+                                {results.length > 0 ? (
+                                    <>
+                                        <p className="font-medium text-sm">AI telah menemukan {results.length} rekomendasi terbaik</p>
+                                        <p className="text-xs text-muted-foreground">Diurutkan berdasarkan skor kecocokan</p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <p className="font-medium text-sm">Tidak ada rekomendasi ditemukan</p>
+                                        <p className="text-xs text-muted-foreground">Coba ubah deskripsi kebutuhan Anda</p>
+                                    </>
+                                )}
                             </div>
                         </div>
 
+                        {results.length === 0 && (
+                            <Card className="border-border/50">
+                                <CardContent className="flex flex-col items-center justify-center py-12">
+                                    <div className="h-16 w-16 rounded-2xl bg-muted/50 flex items-center justify-center mb-4">
+                                        <Sparkles className="h-8 w-8 text-muted-foreground/50" />
+                                    </div>
+                                    <h3 className="font-semibold text-lg mb-1">Tidak ada yang cocok</h3>
+                                    <p className="text-sm text-muted-foreground text-center max-w-sm">
+                                        AI tidak menemukan freelancer yang cocok. Coba jelaskan kebutuhan Anda lebih detail atau ubah kategori.
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        )}
+
                         <div className="space-y-4">
-                            {mockResults.map((result, index) => (
+                            {results.map((result, index) => (
                                 <Card
-                                    key={result.name}
+                                    key={index}
                                     className={`border-border/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 ${index === 0 ? "ring-2 ring-primary/50" : ""
                                         }`}
                                 >
@@ -211,7 +260,7 @@ export default function AiMatchingPage() {
                                             <div className="relative">
                                                 <Avatar className="h-14 w-14">
                                                     <AvatarFallback className="gradient-bg text-white">
-                                                        {result.initials}
+                                                        {getInitials(result.freelancerName)}
                                                     </AvatarFallback>
                                                 </Avatar>
                                                 {index === 0 && (
@@ -223,11 +272,11 @@ export default function AiMatchingPage() {
                                             <div className="flex-1">
                                                 <div className="flex items-start justify-between">
                                                     <div>
-                                                        <h3 className="font-semibold">{result.name}</h3>
-                                                        <p className="text-sm text-muted-foreground">{result.title}</p>
+                                                        <h3 className="font-semibold">{result.freelancerName}</h3>
+                                                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{result.reason}</p>
                                                     </div>
                                                     <Badge
-                                                        className={`${result.matchScore >= 95
+                                                        className={`shrink-0 ml-2 ${result.matchScore >= 90
                                                                 ? "gradient-bg text-white border-0"
                                                                 : "bg-primary/10 text-primary"
                                                             }`}
@@ -236,43 +285,22 @@ export default function AiMatchingPage() {
                                                     </Badge>
                                                 </div>
 
-                                                <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
-                                                    <span className="flex items-center gap-1">
-                                                        <MapPin className="h-3 w-3" />
-                                                        {result.location}
-                                                    </span>
-                                                    <span className="flex items-center gap-1">
-                                                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                                                        {result.rating} ({result.reviews})
-                                                    </span>
-                                                    <span className="flex items-center gap-1">
-                                                        <CheckCircle className="h-3 w-3" />
-                                                        {result.projects} proyek
-                                                    </span>
-                                                </div>
-
-                                                <div className="flex flex-wrap gap-1.5 mt-2">
-                                                    {result.skills.map((skill) => (
-                                                        <Badge key={skill} variant="secondary" className="text-xs">
-                                                            {skill}
-                                                        </Badge>
-                                                    ))}
-                                                </div>
-
                                                 <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
                                                     <div>
-                                                        <p className="text-xs text-muted-foreground">Mulai dari</p>
-                                                        <p className="font-bold text-primary">{result.price}</p>
+                                                        <p className="text-xs text-muted-foreground">Estimasi Harga</p>
+                                                        <p className="font-bold text-primary">{result.estimatedPrice}</p>
                                                     </div>
                                                     <div className="flex gap-2">
-                                                        <Button variant="outline" size="sm" className="gap-1">
-                                                            <MessageSquare className="h-3.5 w-3.5" />
-                                                            Chat
-                                                        </Button>
-                                                        <Button size="sm" className="gap-1 gradient-bg text-white border-0 hover:opacity-90">
-                                                            Lihat Profil
-                                                            <ArrowRight className="h-3.5 w-3.5" />
-                                                        </Button>
+                                                        {result.serviceId && (
+                                                            <Button
+                                                                size="sm"
+                                                                className="gap-1 gradient-bg text-white border-0 hover:opacity-90"
+                                                                onClick={() => router.push(`/marketplace/${result.serviceId}`)}
+                                                            >
+                                                                Lihat Detail
+                                                                <ArrowRight className="h-3.5 w-3.5" />
+                                                            </Button>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
